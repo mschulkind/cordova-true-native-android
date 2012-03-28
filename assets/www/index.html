@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Cordova</title>
+<script type="text/javascript" charset="utf-8" src="cordova-1.5.0.js"></script>
+<script type="text/javascript">
+  window.onBodyLoad = function() {
+    document.addEventListener('deviceready', onDeviceReady, false)
+  }
+
+  window.onDeviceReady = function() {
+    alert("hi!");
+  }
+</script>
+</head>
+<body onload="window.onBodyLoad()">
+  <h1>True Native</h1>
+</body>
+</html>
