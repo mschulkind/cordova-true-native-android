@@ -16,4 +16,7 @@
     <plugin name="FileTransfer" value="org.apache.cordova.FileTransfer"/>
     <plugin name="Capture" value="org.apache.cordova.Capture"/>
     <plugin name="Battery" value="org.apache.cordova.BatteryListener"/>
+
+    <plugin name="cordovatruenative.view" value="org.apache.cordova.plugins.truenative.View"/>
+    <plugin name="cordovatruenative.window" value="org.apache.cordova.plugins.truenative.Window"/>
 </plugins>

@@ -1,4 +1,4 @@
-package org.apache.cordova.truenative.example;
+package org.apache.cordova.plugins.truenative.example;
 
 import android.os.Bundle;
 import org.apache.cordova.*;

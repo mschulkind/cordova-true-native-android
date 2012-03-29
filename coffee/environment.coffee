@@ -29,3 +29,5 @@ window.puts = (msg, filterKeys) ->
 
 window.alert = (message) ->
   navigator.notification.alert(message, null, "")
+
+window.Cordova = cordova
