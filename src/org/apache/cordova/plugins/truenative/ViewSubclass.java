@@ -17,7 +17,7 @@ public class ViewSubclass extends View {
       data.put("height", h);
     } catch(Exception e) {
       e.printStackTrace();
-      assertTrue(false);
+      fail();
     }
     ComponentPlugin.fireEventForComponent(this, "resize", data);
   }

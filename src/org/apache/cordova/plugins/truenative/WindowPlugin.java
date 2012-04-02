@@ -47,7 +47,7 @@ public class WindowPlugin extends ComponentPlugin {
       });
     } catch (JSONException e) {
       e.printStackTrace();
-      assertTrue(false);
+      fail();
     }
   }
 }

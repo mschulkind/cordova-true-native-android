@@ -37,9 +37,16 @@ public abstract class ComponentPlugin extends Plugin {
   @Override
   public PluginResult execute(
       String action, JSONArray args, String callbackId) {
-    if (action.equals("allocateUIID")) { return this.allocateUIID(); }
-    else {
-      assertTrue("action '"+ action + "' not found", false);
+    try {
+      if (action.equals("allocateUIID")) { 
+        return this.allocateUIID(); 
+      } else if (action.equals("setProperties")) { 
+        this.setProperties(args.getJSONObject(0)); 
+      } else {
+        assertTrue("action '"+ action + "' not found", false);
+      }
+    } catch (JSONException e) {
+      return new PluginResult(PluginResult.Status.JSON_EXCEPTION);
     }
 
     return new PluginResult(PluginResult.Status.OK, "");
@@ -77,10 +84,59 @@ public abstract class ComponentPlugin extends Plugin {
       return tnUIID;
     } catch(Exception e) {
       e.printStackTrace();
-      assertTrue(false);
+      fail("No ID found for component: "+component);
     }
 
     return null;
+  }
+  public static Object lookupComponent(String tnUIID) {
+    try {
+      Object component = tnUIIDMap.get(tnUIID);
+      assertNotNull(component);
+      return component;
+    } catch(Exception e) {
+      e.printStackTrace();
+      fail("Component with ID '"+tnUIID+"' not found.");
+    }
+
+    return null;
+  }
+
+  private ComponentPlugin getPluginFor(JSONObject options) {
+    String pluginID = null;
+    try {
+      pluginID = options.getString("pluginID");
+    } catch (JSONException e) {
+      e.printStackTrace();
+      fail("Plugin with ID '"+pluginID+"' not found.");
+    }
+
+    ComponentPlugin plugin = 
+      (ComponentPlugin)sSingleton
+        .getDroidGap()
+        .pluginManager
+        .getPlugin(pluginID);
+    assertNotNull(plugin);
+
+    return plugin;
+  }
+
+  public static Object createComponentWithOptions(JSONObject options) {
+    String tnUIID = null;
+    try {
+      tnUIID = options.getString("tnUIID");
+    } catch (JSONException e) {
+      e.printStackTrace();
+      fail();
+    }
+
+    ComponentPlugin plugin = sSingleton.getPluginFor(options);
+
+    Object component = plugin.newComponentInstance();
+    plugin.registerComponent(component, tnUIID);
+    plugin.setupComponent(component, options);
+
+    return component;
   }
 
   private static int sNextUIID = 0;
@@ -91,28 +147,31 @@ public abstract class ComponentPlugin extends Plugin {
         PluginResult.Status.OK, Integer.toString(allocatedID));
   }
 
-  public static Object createComponentWithOptions(JSONObject options) {
-    String pluginID = null;
-    String tnUIID = null;
-    try {
-      pluginID = options.getString("pluginID");
-      tnUIID = options.getString("tnUIID");
-    } catch (JSONException e) {
-      e.printStackTrace();
-      assertTrue(false);
+  public void setComponentProperty(Object component, String key, Object value) {
+    if (false) {
+    } else {
+      fail("Unknown property '"+key+"'.");
     }
+  }
 
-    ComponentPlugin plugin = 
-      (ComponentPlugin)sSingleton
-        .getDroidGap()
-        .pluginManager
-        .getPlugin(pluginID);
-    Object component = plugin.newComponentInstance();
+  public void setProperties(final JSONObject options) {
+    ctx.runOnUiThread(new Runnable() {
+      public void run() {
+        try {
+          String tnUIID = options.getString("componentID");
+          JSONObject properties = options.getJSONObject("properties");
 
-    sSingleton.registerComponent(component, tnUIID);
-
-    plugin.setupComponent(component, options);
-
-    return component;
+          Object component = lookupComponent(tnUIID);
+          for (Iterator it = properties.keys(); it.hasNext();) {
+            String key = (String)it.next();
+            Object value = properties.get(key);
+            setComponentProperty(component, key, value);
+          }
+        } catch(JSONException e) {
+          e.printStackTrace();
+          fail();
+        }
+      }
+    });
   }
 }

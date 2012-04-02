@@ -18,7 +18,7 @@ public class Window {
       viewOptions = options.getJSONObject("view");
     } catch (JSONException e) {
       e.printStackTrace();
-      assertTrue(false);
+      fail();
     }
 
     mView = (View)ComponentPlugin.createComponentWithOptions(viewOptions);
