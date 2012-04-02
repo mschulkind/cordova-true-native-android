@@ -14,13 +14,22 @@ TN.UI.Window = class Window extends TN.UI.Component
       throw "constructView option not supported" if options?.constructView
 
     @addEventListener('destroyView', =>
-      delete @private.view
+      delete @view
     )
 
   open: (options) ->
     modal = options?.modal ? false
 
     @registerSelfAndDescendants()
+    
+    TN.platformCond(
+      android: =>
+        @createView()
+        @view.addEventOnceListener('resize', (e) =>
+          @constructView(e.width, e.height)
+        )
+    )
+
     Cordova.exec(
       null, null, @pluginID, 'open',
       [
@@ -33,12 +42,12 @@ TN.UI.Window = class Window extends TN.UI.Component
     Cordova.exec(null, null, @pluginID, 'close', [windowID: @tnUIID])
 
   createView: ->
-    @private.view = new TN.UI.View(backgroundColor: 'white')
-    @private.view.registerSelfAndDescendants()
-    @private.view
+    @view = new TN.UI.View(backgroundColor: 'white')
+    @view.registerSelfAndDescendants()
+    @view
 
   constructView: (width, height) ->
-    @private.view.width = width
-    @private.view.height = height
+    @view.width = width
+    @view.height = height
 
     @private.constructView?(@private.view)

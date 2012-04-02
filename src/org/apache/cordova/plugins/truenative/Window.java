@@ -1,7 +1,30 @@
 package org.apache.cordova.plugins.truenative;
 
-import org.apache.cordova.api.Plugin;
-import org.apache.cordova.api.PluginResult;
+import android.content.Context;
+import android.view.View;
 
-public class Window extends Component {
+import org.apache.cordova.DroidGap;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import static junit.framework.Assert.*;
+
+public class Window {
+  private View mView;
+
+  public void setup(JSONObject options) {
+    JSONObject viewOptions = null;
+    try {
+      viewOptions = options.getJSONObject("view");
+    } catch (JSONException e) {
+      e.printStackTrace();
+      assertTrue(false);
+    }
+
+    mView = (View)ComponentPlugin.createComponentWithOptions(viewOptions);
+  }
+
+  public void open() {
+    ComponentPlugin.getSingleton().getDroidGap().setContentView(mView);
+  }
 }

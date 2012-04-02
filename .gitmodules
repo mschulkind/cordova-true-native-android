@@ -1,0 +1,3 @@
+[submodule "libs/cordova"]
+	path = libs/cordova
+	url = git@github.com:mschulkind/incubator-cordova-android.git
