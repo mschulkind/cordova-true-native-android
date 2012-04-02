@@ -1,5 +1,5 @@
 window.onDeviceReady = ->
   new TN.UI.Window(
-    createView: (view) ->
+    constructView: (view) ->
       view.setProperty('backgroundColor', 'green')
   ).open()

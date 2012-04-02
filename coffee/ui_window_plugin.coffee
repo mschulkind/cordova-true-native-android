@@ -50,4 +50,4 @@ TN.UI.Window = class Window extends TN.UI.Component
     @view.width = width
     @view.height = height
 
-    @private.constructView?(@private.view)
+    @private.constructView?(@view)
