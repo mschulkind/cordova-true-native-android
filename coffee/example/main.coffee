@@ -1,25 +1,55 @@
+window.onBodyLoad = ->
+  document.addEventListener("deviceready", onDeviceReady, false)
+
 window.onDeviceReady = ->
-  new TN.UI.Window(
+  Cordova.exec(
+    onTNReady, null, 'cordovatruenative.component', 'loadJavascript', [])
+
+document.addEventListener('deviceready', onDeviceReady, false)
+
+onTNReady = ->
+  navController = new TN.UI.NavigationController
+  navController.push(new TN.UI.Window(
+    title: "True Native"
     constructView: (view) ->
-      view.setProperty('backgroundColor', 'black')
+      entries = []
 
-      red = new TN.UI.View(
-        top: 10
-        left: 20
-        width: 30
-        height: 40
-        backgroundColor: 'red'
+      # Adds a row object to the entries array. Each object in the entries
+      # array corresponds to one row of the table view.
+      addExample = (name, windowCallback) ->
+        entries.push(
+          userData:
+            exampleName: name
+            window: windowCallback(navController)
+        )
+
+      addExample('Action Sheet', App.createActionSheetDemoWindow)
+      addExample('Instagram', App.createInstagramDemoWindow)
+      addExample('Twitter', App.createTwitterDemoWindow)
+
+      tableView = new TN.UI.TableView(entries: entries)
+
+      constructRow = (rowEntry, row) ->
+        row.setProperty('hasDetail', true)
+        row.addEventListener('click', ->
+          navController.push(row.userData.window)
+        )
+
+      reuseRow = (rowEntry, row) ->
+        row.setProperty('text', rowEntry.userData.exampleName)
+        
+        # Save the window for the click handler.
+        row.userData.window = rowEntry.userData.window
+
+      # Each row object specifies a template name. All rows here use the same
+      # template name. This tells the table view about the template.
+      tableView.addRowTemplate(
+        constructCallback: constructRow
+        reuseCallback: reuseRow
       )
-      view.add(red)
 
-      _(->
-        red.setProperty('left', 50)
-        view.add(new TN.UI.View(
-          top: 80
-          left: 20
-          width: 30
-          height: 40
-          backgroundColor: 'cyan'
-        ))
-      ).delay(1000)
-  ).open()
+      # Add the table view to the window's view and stretch it to fill the
+      # window.
+      TN.glueViews(view, tableView)
+  ))
+  navController.open()
