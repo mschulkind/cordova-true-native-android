@@ -1,13 +1,13 @@
 package org.apache.cordova.plugins.truenative;
 
 import android.content.Context;
-import android.view.View;
+import android.widget.AbsoluteLayout;
 import org.json.JSONObject;
 
 import static junit.framework.Assert.*;
 
-public class ViewSubclass extends View {
-  public ViewSubclass(Context context) { super(context); }
+public class AbsoluteLayoutSubclass extends AbsoluteLayout {
+  public AbsoluteLayoutSubclass(Context context) { super(context); }
 
   @Override
   protected void onSizeChanged(int w, int h, int oldw, int oldh) {

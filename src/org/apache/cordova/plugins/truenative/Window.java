@@ -21,7 +21,7 @@ public class Window {
       fail();
     }
 
-    mView = (View)ComponentPlugin.createComponentWithOptions(viewOptions);
+    mView = (View)ComponentPlugin.createComponent(viewOptions);
   }
 
   public void open() {

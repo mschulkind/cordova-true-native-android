@@ -41,7 +41,7 @@ public class WindowPlugin extends ComponentPlugin {
       ctx.runOnUiThread(new Runnable() {
         public void run() {
           Window window = 
-            (Window)ComponentPlugin.createComponentWithOptions(windowOptions);
+            (Window)ComponentPlugin.createComponent(windowOptions);
           window.open();
         }
       });
