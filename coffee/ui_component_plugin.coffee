@@ -5,6 +5,7 @@ TN.UI = {}
 TN.UI.componentMap = componentMap = {}
 
 TN.UI.registerComponent = (component) ->
+  puts component unless component.tnUIID
   throw "missing tnUIID" unless component.tnUIID
   componentMap[component.tnUIID] = component
 

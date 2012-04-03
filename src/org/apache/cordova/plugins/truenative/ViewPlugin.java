@@ -33,8 +33,11 @@ public class ViewPlugin extends ComponentPlugin {
 
   @Override
   protected void setupComponent(Object component, JSONObject options) {
+    super.setupComponent(component, options);
+
     setComponentProperties(
-        component, options, "top", "left", "width", "height", "backgroundColor");
+        component, options, 
+        "top", "left", "width", "height", "backgroundColor");
   }
 
   @Override
@@ -51,36 +54,72 @@ public class ViewPlugin extends ComponentPlugin {
     return new PluginResult(PluginResult.Status.OK, "");
   }
 
-  private void updateLayoutParams(AbsoluteLayout view) {
+  private void updateLayoutParams(View view) {
     ViewData data = (ViewData)getComponentData(view);
     if (data.parent != null) {
       data.parent.updateViewLayout(view, data.layoutParams);
     }
   }
 
-  private int convertToPixels(Object integer) {
-    return (int)(((Integer)integer).intValue() 
-                 * ctx.getResources().getDisplayMetrics().density);
+  private static int convertToPixels(Object dips) {
+    return (int)(((Integer)dips).intValue() 
+        * sSingleton.getDroidGap().getResources().getDisplayMetrics().density);
+  }
+
+  private static int convertToDips(int pixels) {
+    return (int)(pixels 
+        / sSingleton.getDroidGap().getResources().getDisplayMetrics().density);
+  }
+
+  public static void onViewSizeChanged(
+      View view, int w, int h, int oldw, int oldh) {
+    JSONObject data = new JSONObject();
+    try {
+      data.put("width", convertToDips(w));
+      data.put("height", convertToDips(h));
+    } catch(Exception e) {
+      e.printStackTrace();
+      fail();
+    }
+    ComponentPlugin.fireEvent(view, "resize", data);
+  }
+
+  @Override
+  public Object getComponentProperty(Object component, String key) {
+    View view = (View)component;
+    ViewData data = (ViewData)getComponentData(component);
+
+    if (key.equals("top")) {
+      return convertToDips(data.layoutParams.y);
+    } else if (key.equals("left")) {
+      return convertToDips(data.layoutParams.x);
+    } else if (key.equals("width")) {
+      return convertToDips(data.layoutParams.width);
+    } else if (key.equals("height")) {
+      return convertToDips(data.layoutParams.height);
+    } else {
+      return super.getComponentProperty(component, key);
+    }
   }
 
   @Override
   public void setComponentProperty(Object component, String key, Object value) {
-    AbsoluteLayout view = (AbsoluteLayout)component;
-    ViewData viewData = (ViewData)getComponentData(component);
+    View view = (View)component;
+    ViewData data = (ViewData)getComponentData(component);
 
     if (key.equals("backgroundColor")) {
       view.setBackgroundColor(Util.parseColor((String)value));
     } else if (key.equals("top")) {
-      viewData.layoutParams.y = convertToPixels(value);
+      data.layoutParams.y = convertToPixels(value);
       updateLayoutParams(view);
     } else if (key.equals("left")) {
-      viewData.layoutParams.x = convertToPixels(value);
+      data.layoutParams.x = convertToPixels(value);
       updateLayoutParams(view);
     } else if (key.equals("width")) {
-      viewData.layoutParams.width = convertToPixels(value);
+      data.layoutParams.width = convertToPixels(value);
       updateLayoutParams(view);
     } else if (key.equals("height")) {
-      viewData.layoutParams.height = convertToPixels(value);
+      data.layoutParams.height = convertToPixels(value);
       updateLayoutParams(view);
     } else {
       super.setComponentProperty(component, key, value);
@@ -95,7 +134,7 @@ public class ViewPlugin extends ComponentPlugin {
           JSONObject childOptions = options.getJSONObject("child");
 
           AbsoluteLayout parent = (AbsoluteLayout)getComponent(parentID);
-          AbsoluteLayout child = (AbsoluteLayout)createComponent(childOptions);
+          View child = (View)createComponent(childOptions);
           ViewData childData = (ViewData)getComponentData(child);
           childData.parent = parent;
           parent.addView(child, childData.layoutParams);

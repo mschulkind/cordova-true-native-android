@@ -5,9 +5,10 @@ window.onDeviceReady = ->
   Cordova.exec(
     onTNReady, null, 'cordovatruenative.component', 'loadJavascript', [])
 
-document.addEventListener('deviceready', onDeviceReady, false)
-
 onTNReady = ->
+  App.createActionSheetDemoWindow().open()
+
+onTNReadyFull = ->
   navController = new TN.UI.NavigationController
   navController.push(new TN.UI.Window(
     title: "True Native"

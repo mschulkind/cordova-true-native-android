@@ -15,8 +15,8 @@ import java.util.*;
 
 import static junit.framework.Assert.*;
 
-public abstract class ComponentPlugin extends Plugin {
-  private static ComponentPlugin sSingleton;
+public class ComponentPlugin extends Plugin {
+  protected static ComponentPlugin sSingleton;
   public ComponentPlugin() {
     if (sSingleton == null) {
       sSingleton = this;
@@ -26,12 +26,16 @@ public abstract class ComponentPlugin extends Plugin {
     return sSingleton;
   }
 
-  protected abstract Object newComponentInstance();
+  protected Object newComponentInstance() { 
+    fail(); 
+    return null;
+  }
   protected class ComponentData {};
   protected ComponentData newComponentDataInstance() {
     return new ComponentData();
   }
-  protected abstract void setupComponent(Object component, JSONObject options);
+  protected void setupComponent(Object component, JSONObject options) {
+  }
 
   @Override
 	public boolean isSynch(String action) {
@@ -44,8 +48,12 @@ public abstract class ComponentPlugin extends Plugin {
     try {
       if (action.equals("allocateUIID")) { 
         return this.allocateUIID(); 
+      } else if (action.equals("getProperties")) { 
+        this.getProperties(args.getJSONObject(0)); 
       } else if (action.equals("setProperties")) { 
         this.setProperties(args.getJSONObject(0)); 
+      } else if (action.equals("loadJavascript")) {
+        // TODO(mschulkind): Actually do something here.
       } else {
         assertTrue("action '"+ action + "' not found", false);
       }
@@ -66,7 +74,7 @@ public abstract class ComponentPlugin extends Plugin {
     sSingleton.sendJavascript("TN.UI.componentMap['"+tnUIID+"']."+statement);
   }
 
-  public static void fireEventForComponent(
+  public static void fireEvent(
       Object component, String name, JSONObject data) {
     sendJavascriptForComponent(component, "fireEvent('"+name+"', "+data+")");
   }
@@ -188,7 +196,7 @@ public abstract class ComponentPlugin extends Plugin {
       }
     } catch(Exception e) {
       e.printStackTrace();
-      assertTrue(false);
+      fail();
     }
   }
 
@@ -211,5 +219,39 @@ public abstract class ComponentPlugin extends Plugin {
         }
       }
     });
+  }
+
+  public Object getComponentProperty(Object component, String key) {
+    if (false) {
+      return null;
+    } else {
+      fail("Unknown property '"+key+"'.");
+      return null;
+    }
+  }
+
+  public PluginResult getProperties(final JSONObject options) {
+    final JSONObject properties = new JSONObject();
+
+    ctx.runOnUiThread(new Runnable() {
+      public void run() {
+        try {
+          String tnUIID = options.getString("componentID");
+          JSONArray propertyNames = options.getJSONArray("propertyNames");
+
+          Object component = getComponent(tnUIID);
+          for (int i = 0; i < propertyNames.length(); ++i) {
+            String key = (String)propertyNames.get(i);
+            Object value = getComponentProperty(component, key);
+            properties.put(key, value);
+          }
+        } catch(JSONException e) {
+          e.printStackTrace();
+          fail();
+        }
+      }
+    });
+
+    return new PluginResult(PluginResult.Status.OK, properties);
   }
 }

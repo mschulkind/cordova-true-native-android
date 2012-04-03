@@ -13,9 +13,9 @@ TN.UI.Button = class Button extends TN.UI.View
     @title = options?.title
 
     @fontFamily = options?.fontFamily ? 'Helvetica Neue'
-    @fontSize = options?.fontSize
+    @fontSize = options?.fontSize ? 14
     @fontWeight = options?.fontWeight
-    @fontColor = options?.fontColor
+    @fontColor = options?.fontColor ? 'white'
 
     @highlightedBackgroundColor = options?.highlightedBackgroundColor
 

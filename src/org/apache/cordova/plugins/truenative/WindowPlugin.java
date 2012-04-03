@@ -17,6 +17,8 @@ public class WindowPlugin extends ComponentPlugin {
 
   @Override
   protected void setupComponent(Object component, JSONObject options) {
+    super.setupComponent(component, options);
+
     ((Window)component).setup(options);
   }
 
