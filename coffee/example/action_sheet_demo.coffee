@@ -18,6 +18,8 @@ App.createActionSheetDemoWindow = ->
         button = new TN.UI.Button(
           title: 'Choose Meal'
           backgroundColor: 'black'
+          borderWidth: 1
+          borderColor: 'white'
         )
         # Create and add a grid cell for the button that will stretch the
         # button horizontally.

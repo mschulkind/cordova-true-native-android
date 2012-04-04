@@ -199,14 +199,11 @@ public class ComponentPlugin extends Plugin {
 
   public void setComponentProperties(
       Object component, JSONObject options, String... propertyNames) {
-    try {
-      for (String name : propertyNames) {
-        Object value = options.get(name);
+    for (String name : propertyNames) {
+      Object value = options.opt(name);
+      if (value != null) {
         setComponentProperty(component, name, value);
       }
-    } catch(Exception e) {
-      e.printStackTrace();
-      fail();
     }
   }
 
