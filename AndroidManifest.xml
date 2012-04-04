@@ -32,7 +32,8 @@
   <application android:label="@string/app_name" >
     <activity android:name="App"
       android:configChanges="orientation|keyboardHidden"
-      android:label="True Native">
+      android:label="True Native"
+      android:icon="@drawable/app_icon">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
