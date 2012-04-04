@@ -32,15 +32,15 @@ App.createActionSheetDemoWindow = ->
 
         # Add a label (with a cell to grow it) that we will update with the
         # user's choice.
-        #label = new TN.UI.Label(
-          #text: ''
-          #color: 'white'
-        #)
-        #gridCell.add(new TN.GridCell(
-          #view: label
-          #growMode: 'horizontal'
-          #fixedHeight: 30
-        #))
+        label = new TN.UI.Label(
+          text: ''
+          color: 'white'
+        )
+        gridCell.add(new TN.GridCell(
+          view: label
+          growMode: 'horizontal'
+          fixedHeight: 30
+        ))
 
         # Add a click handler for the button to show the action sheet.
         button.addEventListener('click', ->

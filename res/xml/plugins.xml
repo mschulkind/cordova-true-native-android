@@ -17,6 +17,7 @@
     <plugin name="Capture" value="org.apache.cordova.Capture"/>
     <plugin name="Battery" value="org.apache.cordova.BatteryListener"/>
 
+    <plugin name="cordovatruenative.actionsheet" value="org.apache.cordova.plugins.truenative.ActionSheetPlugin"/>
     <plugin name="cordovatruenative.button" value="org.apache.cordova.plugins.truenative.ButtonPlugin"/>
     <plugin name="cordovatruenative.component" value="org.apache.cordova.plugins.truenative.ComponentPlugin"/>
     <plugin name="cordovatruenative.label" value="org.apache.cordova.plugins.truenative.LabelPlugin"/>

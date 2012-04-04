@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
-import android.widget.AbsoluteLayout.LayoutParams;
 
 import org.apache.cordova.api.Plugin;
 import org.apache.cordova.api.PluginResult;

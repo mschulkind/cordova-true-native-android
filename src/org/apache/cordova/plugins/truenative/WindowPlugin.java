@@ -36,6 +36,7 @@ public class WindowPlugin extends ComponentPlugin {
     return new PluginResult(PluginResult.Status.OK, "");
   }
 
+  public static Window openWindow;
   public void open(final JSONObject options) {
     try {
       final JSONObject windowOptions = options.getJSONObject("window");
@@ -45,6 +46,7 @@ public class WindowPlugin extends ComponentPlugin {
           Window window = 
             (Window)ComponentPlugin.createComponent(windowOptions);
           window.open();
+          openWindow = window;
         }
       });
     } catch (JSONException e) {

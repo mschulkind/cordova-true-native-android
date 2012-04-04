@@ -10,7 +10,7 @@ import org.json.JSONObject;
 import static junit.framework.Assert.*;
 
 public class Window {
-  private View mView;
+  public View view;
 
   public void setup(JSONObject options) {
     JSONObject viewOptions = null;
@@ -21,10 +21,10 @@ public class Window {
       fail();
     }
 
-    mView = (View)ComponentPlugin.createComponent(viewOptions);
+    view = (View)ComponentPlugin.createComponent(viewOptions);
   }
 
   public void open() {
-    ComponentPlugin.getSingleton().getDroidGap().setContentView(mView);
+    ComponentPlugin.getSingleton().getDroidGap().setContentView(view);
   }
 }

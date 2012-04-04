@@ -1,6 +1,7 @@
 package org.apache.cordova.plugins.truenative;
 
 import android.content.Context;
+import android.util.TypedValue;
 import android.widget.TextView;
 
 import org.apache.cordova.api.Plugin;
@@ -29,7 +30,9 @@ public class LabelPlugin extends ViewPlugin {
   protected void setupComponent(Object component, JSONObject options) {
     super.setupComponent(component, options);
 
-    setComponentProperties(component, options, "");
+    setComponentProperties(
+        component, options, 
+        "color", "text", "fontSize");
   }
 
   @Override
@@ -38,6 +41,12 @@ public class LabelPlugin extends ViewPlugin {
     LabelData data = (LabelData)getComponentData(component);
 
     if (key.equals("text")) {
+      textView.setText((String)value);
+    } else if (key.equals("color")) {
+      textView.setTextColor(Util.parseColor((String)value));
+    } else if (key.equals("fontSize")) {
+      textView.setTextSize(
+          TypedValue.COMPLEX_UNIT_DIP, ((Integer)value).intValue());
     } else {
       super.setComponentProperty(component, key, value);
     }

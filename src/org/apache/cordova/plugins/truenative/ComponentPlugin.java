@@ -69,14 +69,24 @@ public class ComponentPlugin extends Plugin {
   }
 
   public static void sendJavascriptForComponent(
-      Object component, String statement) {
-    String tnUIID = getComponentID(component);
+      String tnUIID, String statement) {
     sSingleton.sendJavascript("TN.UI.componentMap['"+tnUIID+"']."+statement);
+  }
+
+  public static void sendJavascriptForComponent(
+      Object component, String statement) {
+    sendJavascriptForComponent(getComponentID(component), statement);
+  }
+
+  public static void fireEvent(
+      String tnUIID, String name, JSONObject data) {
+    sendJavascriptForComponent(tnUIID, "fireEvent('"+name+"', "+data+")");
   }
 
   public static void fireEvent(
       Object component, String name, JSONObject data) {
-    sendJavascriptForComponent(component, "fireEvent('"+name+"', "+data+")");
+    String tnUIID = getComponentID(component);
+    fireEvent(tnUIID, name, data);
   }
 
   // Maps tnUIID -> component.

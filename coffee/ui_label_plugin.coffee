@@ -14,7 +14,7 @@ TN.UI.Label = class Label extends TN.UI.View
     @color = options?.color
     @text = options?.text || ''
     @fontFamily = options?.fontFamily ? 'Helvetica Neue'
-    @fontSize = options?.fontSize
+    @fontSize = options?.fontSize ? 14
     @fontWeight = options?.fontWeight
     @maxNumberOfLines = options?.maxNumberOfLines ? 1
 
