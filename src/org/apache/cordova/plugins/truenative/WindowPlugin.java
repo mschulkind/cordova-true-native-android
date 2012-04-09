@@ -12,7 +12,7 @@ import static junit.framework.Assert.*;
 public class WindowPlugin extends ComponentPlugin {
   @Override
   protected Object newComponentInstance() {
-    return new Window();
+    return new Window(this);
   }
 
   @Override
@@ -44,7 +44,7 @@ public class WindowPlugin extends ComponentPlugin {
       ctx.runOnUiThread(new Runnable() {
         public void run() {
           Window window = 
-            (Window)ComponentPlugin.createComponent(windowOptions);
+            (Window)createComponent(windowOptions);
           window.open();
           openWindow = window;
         }

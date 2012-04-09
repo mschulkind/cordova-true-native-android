@@ -80,7 +80,7 @@ public class ViewPlugin extends ComponentPlugin {
 
   @Override
   protected Object newComponentInstance() {
-    return new AbsoluteLayoutSubclass(getDroidGap());
+    return new AbsoluteLayoutSubclass(getDroidGap(), this);
   }
 
   @Override
@@ -118,17 +118,17 @@ public class ViewPlugin extends ComponentPlugin {
     }
   }
 
-  private static int convertToPixels(Object dips) {
+  private int convertToPixels(Object dips) {
     return Math.round(((Integer)dips).intValue() 
-        * sSingleton.getDroidGap().getResources().getDisplayMetrics().density);
+        * getDroidGap().getResources().getDisplayMetrics().density);
   }
 
-  private static int convertToDips(int pixels) {
+  private int convertToDips(int pixels) {
     return Math.round(pixels 
-        / sSingleton.getDroidGap().getResources().getDisplayMetrics().density);
+        / getDroidGap().getResources().getDisplayMetrics().density);
   }
 
-  public static void onViewSizeChanged(
+  public void onViewSizeChanged(
       View view, int w, int h, int oldw, int oldh) {
     JSONObject data = new JSONObject();
     try {
@@ -138,7 +138,7 @@ public class ViewPlugin extends ComponentPlugin {
       e.printStackTrace();
       fail();
     }
-    ComponentPlugin.fireEvent(view, "resize", data);
+    fireEvent(view, "resize", data);
   }
 
   @Override

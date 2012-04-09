@@ -11,6 +11,11 @@ import static junit.framework.Assert.*;
 
 public class Window {
   public View view;
+  private WindowPlugin mPlugin;
+
+  public Window(WindowPlugin plugin) {
+    mPlugin = plugin;
+  }
 
   public void setup(JSONObject options) {
     JSONObject viewOptions = null;
@@ -21,10 +26,10 @@ public class Window {
       fail();
     }
 
-    view = (View)ComponentPlugin.createComponent(viewOptions);
+    view = (View)mPlugin.createComponent(viewOptions);
   }
 
   public void open() {
-    ComponentPlugin.getSingleton().getDroidGap().setContentView(view);
+    mPlugin.getDroidGap().setContentView(view);
   }
 }

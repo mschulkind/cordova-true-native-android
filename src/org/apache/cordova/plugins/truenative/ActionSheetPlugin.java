@@ -44,7 +44,7 @@ public class ActionSheetPlugin extends ComponentPlugin {
         e.printStackTrace();
         fail();
       }
-      ComponentPlugin.fireEvent(mTNUIID, "actionSheetClick", data);
+      fireEvent(mTNUIID, "actionSheetClick", data);
 
       // TODO(mschulkind): Destroy the action sheet on the JS side.
 

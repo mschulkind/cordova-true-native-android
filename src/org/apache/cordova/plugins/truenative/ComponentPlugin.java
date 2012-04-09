@@ -16,15 +16,17 @@ import java.util.*;
 import static junit.framework.Assert.*;
 
 public class ComponentPlugin extends Plugin {
-  protected static ComponentPlugin sSingleton;
-  public ComponentPlugin() {
-    if (sSingleton == null) {
-      sSingleton = this;
-    }
-  }
-  public static ComponentPlugin getSingleton() {
-    return sSingleton;
-  }
+  private int mNextUIID = 0;
+
+  // Maps tnUIID -> component.
+  private HashMap<String, Object> mComponentMap = 
+    new HashMap<String, Object>();
+  // Maps component -> tnUIID.
+  private HashMap<Object, String> mReverseComponentMap = 
+    new HashMap<Object, String>();
+  // Maps tnUIID -> component data.
+  private HashMap<String, ComponentData> mComponentDataMap =
+    new HashMap<String, ComponentData>();
 
   protected Object newComponentInstance() { 
     fail(); 
@@ -64,73 +66,63 @@ public class ComponentPlugin extends Plugin {
     return new PluginResult(PluginResult.Status.OK, "");
   }
 
-  public DroidGap getDroidGap() {
+  protected DroidGap getDroidGap() {
     return ((DroidGap)ctx);
   }
 
-  public static void sendJavascriptForComponent(
-      String tnUIID, String statement) {
-    sSingleton.sendJavascript("TN.UI.componentMap['"+tnUIID+"']."+statement);
+  // Returns the ComponentPlugin plugin instance, not just the current plugin
+  // casted to a ComponentPlugin.
+  protected ComponentPlugin getComponentPlugin() {
+    if (getClass() == ComponentPlugin.class) {
+      return this;
+    } else {
+      return (ComponentPlugin)getPluginFor("cordovatruenative.component");
+    }
   }
 
-  public static void sendJavascriptForComponent(
+  protected void sendJavascriptForComponent(
+      String tnUIID, String statement) {
+    String wrappedStatement = "TN.UI.componentMap['"+tnUIID+"']."+statement;
+    //System.out.println(wrappedStatement);
+    sendJavascript(wrappedStatement);
+  }
+  protected void sendJavascriptForComponent(
       Object component, String statement) {
     sendJavascriptForComponent(getComponentID(component), statement);
   }
 
-  public static void fireEvent(
+  protected void fireEvent(
       String tnUIID, String name, JSONObject data) {
     sendJavascriptForComponent(tnUIID, "fireEvent('"+name+"', "+data+")");
   }
-
-  public static void fireEvent(
+  protected void fireEvent(
       Object component, String name, JSONObject data) {
     String tnUIID = getComponentID(component);
     fireEvent(tnUIID, name, data);
   }
 
-  // Maps tnUIID -> component.
-  private static HashMap<String, Object> componentMap = 
-    new HashMap<String, Object>();
-  // Maps component -> tnUIID.
-  private static HashMap<Object, String> reverseComponentMap = 
-    new HashMap<Object, String>();
-  // Maps tnUIID -> component data.
-  private static HashMap<String, ComponentData> componentDataMap =
-    new HashMap<String, ComponentData>();
-  public static void registerComponent(
+  protected void registerComponent(
       Object component, ComponentData componentData, String tnUIID) {
-    componentMap.put(tnUIID, component);
-    reverseComponentMap.put(component, tnUIID);
-    componentDataMap.put(tnUIID, componentData);
-  }
-  public static String getComponentID(Object component) {
-    try {
-      String tnUIID = reverseComponentMap.get(component);
-      assertNotNull(tnUIID);
-      return tnUIID;
-    } catch(Exception e) {
-      e.printStackTrace();
-      fail("No ID found for component: "+component);
-    }
+    ComponentPlugin componentPlugin = getComponentPlugin();
 
-    return null;
+    componentPlugin.mComponentMap.put(tnUIID, component);
+    componentPlugin.mReverseComponentMap.put(component, tnUIID);
+    componentPlugin.mComponentDataMap.put(tnUIID, componentData);
   }
-  public static Object getComponent(String tnUIID) {
-    try {
-      Object component = componentMap.get(tnUIID);
-      assertNotNull(component);
-      return component;
-    } catch(Exception e) {
-      e.printStackTrace();
-      fail("Component with ID '"+tnUIID+"' not found.");
-    }
-
-    return null;
+  protected String getComponentID(Object component) {
+    String tnUIID = getComponentPlugin().mReverseComponentMap.get(component);
+    assertNotNull("No ID found for component: "+component, tnUIID);
+    return tnUIID;
   }
-  public static ComponentData getComponentData(String tnUIID) {
+  protected Object getComponent(String tnUIID) {
+    Object component = getComponentPlugin().mComponentMap.get(tnUIID);
+    assertNotNull("Component with ID '"+tnUIID+"' not found.", component);
+    return component;
+  }
+  protected ComponentData getComponentData(String tnUIID) {
     try {
-      ComponentData componentData = componentDataMap.get(tnUIID);
+      ComponentData componentData = 
+        getComponentPlugin().mComponentDataMap.get(tnUIID);
       assertNotNull(componentData);
       return componentData;
     } catch(Exception e) {
@@ -140,10 +132,19 @@ public class ComponentPlugin extends Plugin {
 
     return null;
   }
-  public static ComponentData getComponentData(Object component) {
+  protected ComponentData getComponentData(Object component) {
     return getComponentData(getComponentID(component));
   }
 
+  private ComponentPlugin getPluginFor(String pluginID) {
+    ComponentPlugin plugin = 
+      (ComponentPlugin)getDroidGap()
+        .pluginManager
+        .getPlugin(pluginID);
+    assertNotNull(plugin);
+
+    return plugin;
+  }
   private ComponentPlugin getPluginFor(JSONObject options) {
     String pluginID = null;
     try {
@@ -153,17 +154,10 @@ public class ComponentPlugin extends Plugin {
       fail("Plugin with ID '"+pluginID+"' not found.");
     }
 
-    ComponentPlugin plugin = 
-      (ComponentPlugin)sSingleton
-        .getDroidGap()
-        .pluginManager
-        .getPlugin(pluginID);
-    assertNotNull(plugin);
-
-    return plugin;
+    return getPluginFor(pluginID);
   }
 
-  public static Object createComponent(JSONObject options) {
+  protected Object createComponent(JSONObject options) {
     String tnUIID = null;
     try {
       tnUIID = options.getString("tnUIID");
@@ -172,7 +166,7 @@ public class ComponentPlugin extends Plugin {
       fail();
     }
 
-    ComponentPlugin plugin = sSingleton.getPluginFor(options);
+    ComponentPlugin plugin = getPluginFor(options);
 
     Object component = plugin.newComponentInstance();
     ComponentData componentData = plugin.newComponentDataInstance();
@@ -182,22 +176,22 @@ public class ComponentPlugin extends Plugin {
     return component;
   }
 
-  private static int sNextUIID = 0;
   public PluginResult allocateUIID() {
-    int allocatedID = sNextUIID;
-    sNextUIID++;
+    int allocatedID = getComponentPlugin().mNextUIID;
+    getComponentPlugin().mNextUIID++;
     return new PluginResult(
         PluginResult.Status.OK, Integer.toString(allocatedID));
   }
 
-  public void setComponentProperty(Object component, String key, Object value) {
+  protected void setComponentProperty(
+      Object component, String key, Object value) {
     if (false) {
     } else {
       fail("Unknown property '"+key+"'.");
     }
   }
 
-  public void setComponentProperties(
+  protected void setComponentProperties(
       Object component, JSONObject options, String... propertyNames) {
     for (String name : propertyNames) {
       Object value = options.opt(name);
@@ -228,7 +222,7 @@ public class ComponentPlugin extends Plugin {
     });
   }
 
-  public Object getComponentProperty(Object component, String key) {
+  protected Object getComponentProperty(Object component, String key) {
     if (false) {
       return null;
     } else {

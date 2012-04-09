@@ -7,10 +7,15 @@ import org.json.JSONObject;
 import static junit.framework.Assert.*;
 
 public class AbsoluteLayoutSubclass extends AbsoluteLayout {
-  public AbsoluteLayoutSubclass(Context context) { super(context); }
+  private ViewPlugin mPlugin;
+
+  public AbsoluteLayoutSubclass(Context context, ViewPlugin plugin) { 
+    super(context); 
+    mPlugin = plugin;
+  }
 
   @Override
   protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-    ViewPlugin.onViewSizeChanged(this, w, h, oldw, oldh);
+    mPlugin.onViewSizeChanged(this, w, h, oldw, oldh);
   }
 }

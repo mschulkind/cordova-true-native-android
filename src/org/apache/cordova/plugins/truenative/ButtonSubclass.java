@@ -7,10 +7,15 @@ import org.json.JSONObject;
 import static junit.framework.Assert.*;
 
 public class ButtonSubclass extends Button {
-  public ButtonSubclass(Context context) { super(context); }
+  private ButtonPlugin mPlugin;
+
+  public ButtonSubclass(Context context, ButtonPlugin plugin) { 
+    super(context); 
+    mPlugin = plugin;
+  }
 
   @Override
   protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-    ViewPlugin.onViewSizeChanged(this, w, h, oldw, oldh);
+    mPlugin.onViewSizeChanged(this, w, h, oldw, oldh);
   }
 }
