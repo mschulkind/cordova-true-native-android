@@ -1,12 +1,12 @@
 package org.apache.cordova.plugins.truenative;
 
 import android.content.Context;
-import android.widget.TextView;
+import android.widget.AbsoluteLayout;
 
-public class LabelSubclass extends TextView {
-  private LabelPlugin mPlugin;
+public class TableViewRowSubclass extends AbsoluteLayout {
+  private TableViewRowPlugin mPlugin;
 
-  public LabelSubclass(Context context, LabelPlugin plugin) { 
+  public TableViewRowSubclass(Context context, TableViewRowPlugin plugin) { 
     super(context); 
     mPlugin = plugin;
   }
