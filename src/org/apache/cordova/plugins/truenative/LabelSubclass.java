@@ -1,15 +1,15 @@
 package org.apache.cordova.plugins.truenative;
 
 import android.content.Context;
-import android.widget.AbsoluteLayout;
+import android.widget.TextView;
 import org.json.JSONObject;
 
 import static junit.framework.Assert.*;
 
-public class AbsoluteLayoutSubclass extends AbsoluteLayout {
-  private ViewPlugin mPlugin;
+public class LabelSubclass extends TextView {
+  private LabelPlugin mPlugin;
 
-  public AbsoluteLayoutSubclass(Context context, ViewPlugin plugin) { 
+  public LabelSubclass(Context context, LabelPlugin plugin) { 
     super(context); 
     mPlugin = plugin;
   }

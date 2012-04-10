@@ -80,7 +80,7 @@ public class ViewPlugin extends ComponentPlugin {
 
   @Override
   protected Object newComponentInstance() {
-    return new AbsoluteLayoutSubclass(getDroidGap(), this);
+    return new ViewSubclass(getDroidGap(), this);
   }
 
   @Override
