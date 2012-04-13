@@ -19,7 +19,6 @@ public class SMRuntime {
   private native void destroy();
 
   static {
-    System.loadLibrary("gnustl_shared");
     System.loadLibrary("SMRuntime");
   }
 }

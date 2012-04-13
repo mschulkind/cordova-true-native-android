@@ -138,33 +138,6 @@ static JSBool jsGetItem(JSContext *cx, unsigned argc, jsval *vp)
   return JS_TRUE;
 }
 
-static void reportError(
-    JSContext* cx, const char* message, JSErrorReport* report)
-{
-  //NSLog(
-      //@"%s:%u:%s\n",
-      //report->filename ? report->filename : "<no filename>",
-      //(unsigned int) report->lineno, message);
-}
-
-void reportException(JSContext* cx) {
-  if (JS_IsExceptionPending(cx) == JS_TRUE) {
-    jsval exception;
-    assert(JS_GetPendingException(cx, &exception) == JS_TRUE);
-    JS_ReportPendingException(cx);
-
-    JSObject* exceptionObject;
-    assert(JS_ValueToObject(cx, exception, &exceptionObject) == JS_TRUE);
-    jsval stack;
-    assert(JS_GetProperty(cx, exceptionObject, "stack", &stack) == JS_TRUE);
-    //NSLog(@"Stack trace:\n%@", stringWithJsval(cx, stack));
-  } else {
-    assert(false);
-  }
-
-  assert(false);
-}
-
 static JSClass jsGlobalClass = {
     "global", JSCLASS_GLOBAL_FLAGS,
     JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
@@ -190,42 +163,118 @@ static void loadFile(char* filename) {
   //}
 }
 
+static jfieldID getLongFieldID(JNIEnv* env, jobject obj, const char* name) {
+  jfieldID fid;
+  const char *str;
+
+  jclass cls = env->GetObjectClass(obj);
+
+  fid = env->GetFieldID(cls, name, "J");
+  assert(fid);
+
+  return fid;
+}
+
+static void setInstanceLong(
+    JNIEnv* env, jobject obj, const char* name, long value) {
+  return env->SetLongField(obj, getLongFieldID(env, obj, name), value);
+}
+
+static long getInstanceLong(JNIEnv* env, jobject obj, const char* name) {
+  return env->GetLongField(obj, getLongFieldID(env, obj, name));
+}
+
+static JSContext* getJsContext(JNIEnv* env, jobject obj) {
+  return (JSContext*)getInstanceLong(env, obj, "mJSContext");
+}
+
+static JSObject* getJsGlobalObject(JNIEnv* env, jobject obj) {
+  return (JSObject*)getInstanceLong(env, obj, "mJSGlobalObject");
+}
+
+static JSRuntime* getJsRuntime(JNIEnv* env, jobject obj) {
+  return (JSRuntime*)getInstanceLong(env, obj, "mJSRuntime");
+}
+
+// The caller is responsible for freeing the returned string.
+static char* getStringChars(JSContext* jsContext, jsval stringJsval) {
+  JSString* jsString = JS_ValueToString(jsContext, stringJsval);
+
+  char* str = JS_EncodeString(jsContext, jsString);
+  assert(str);
+
+  return str;
+}
+static char* getStringChars(JNIEnv* env, jobject obj, jsval stringJsval) {
+  return getStringChars(getJsContext(env, obj), stringJsval);
+}
+
+static jstring convertToJstring(JNIEnv* env, jobject obj, jsval stringJsval) {
+  JSContext* jsContext = getJsContext(env, obj);
+
+  char* str = getStringChars(env, obj, stringJsval);
+  jstring jString = env->NewStringUTF(str);
+  JS_free(jsContext, str);
+
+  return jString;
+}
+
+static void reportError(
+    JSContext* cx, const char* message, JSErrorReport* report)
+{
+  LOGD(
+      "%s:%u:%s\n",
+      report->filename ? report->filename : "<no filename>",
+      (unsigned int) report->lineno, message);
+}
+
+void reportException(JSContext* cx) {
+  if (JS_IsExceptionPending(cx) == JS_TRUE) {
+    jsval exception;
+    assert(JS_GetPendingException(cx, &exception) == JS_TRUE);
+    JS_ReportPendingException(cx);
+
+    JSObject* exceptionObject;
+    assert(JS_ValueToObject(cx, exception, &exceptionObject) == JS_TRUE);
+    jsval stack;
+    assert(JS_GetProperty(cx, exceptionObject, "stack", &stack) == JS_TRUE);
+    char *stackTrace = getStringChars(cx, stack);
+    LOGD("Stack trace:\n%s", stackTrace);
+    JS_free(cx, stackTrace);
+  } else {
+    assert(false);
+  }
+
+  assert(false);
+}
+
 // See here for more info:
 // https://developer.mozilla.org/En/SpiderMonkey/JSAPI_User_Guide
 JNIEXPORT void JNICALL 
 Java_org_apache_cordova_plugins_truenative_SMRuntime_setupSpiderMonkey(
-    JNIEnv *, jobject, jobjectArray)
+    JNIEnv *env, jobject obj, jobjectArray sourceFileNames)
 {
   LOGD("Starting setting up SpiderMonkey");
 
-  JSRuntime* jsRuntime = JS_NewRuntime(64L * 1024L * 1024L);
+  JSRuntime* jsRuntime = JS_NewRuntime(8L * 1024L * 1024L);
   assert(jsRuntime);
 
   // Create a context. 
   JSContext* jsContext = JS_NewContext(jsRuntime, 8192);
   assert(jsContext);
 
-  JS_SetOptions(
-      jsContext, 
-      //JS_GetOptions(jsContext)
-      JSOPTION_VAROBJFIX | JSOPTION_COMPILE_N_GO 
-      | JSOPTION_DONT_REPORT_UNCAUGHT);
-      //| JSVERSION_LATEST);
+  JS_SetOptions(jsContext, JSOPTION_VAROBJFIX | JSOPTION_DONT_REPORT_UNCAUGHT);
   JS_SetVersion(jsContext, JSVERSION_LATEST);
-  //JS_ToggleOptions(jsContext, JSOPTION_XML);
   JS_SetErrorReporter(jsContext, reportError);
-
-  JS_BeginRequest(jsContext);
 
   // Create the global object.
   JSObject* jsGlobalObject =
-      JS_NewObject(jsContext, &jsGlobalClass, NULL, NULL);
-  assert(jsGlobalObject);
-  JS_SetGlobalObject(jsContext, jsGlobalObject);
+      JS_NewCompartmentAndGlobalObject(jsContext, &jsGlobalClass, NULL);
 
   // Populate the global object with the standard globals, like object and
   // array. 
-  assert(JS_InitStandardClasses(jsContext, jsGlobalObject));
+  JSBool success = JS_InitStandardClasses(jsContext, jsGlobalObject);
+  assert(success);
 
   // Point 'window' right back at the global object.
   JS_DefineProperty(
@@ -270,8 +319,6 @@ Java_org_apache_cordova_plugins_truenative_SMRuntime_setupSpiderMonkey(
       jsContext, jsGlobalObject, "document", OBJECT_TO_JSVAL(documentObject),
       NULL, NULL, 0);
 
-  //[self loadBuiltinJavascript];
-
   //if (sourceFiles) {
     //for (NSString* sourceFile in sourceFiles) {
       //[self loadJavascriptFile:sourceFile];
@@ -283,56 +330,19 @@ Java_org_apache_cordova_plugins_truenative_SMRuntime_setupSpiderMonkey(
       jsContext, documentObject, "readyState",
       STRING_TO_JSVAL(JS_NewStringCopyZ(jsContext, "loaded")), NULL, NULL, 0);
 
-  JS_EndRequest(jsContext);
+  setInstanceLong(env, obj, "mJSContext", (long)jsContext);
+  setInstanceLong(env, obj, "mJSGlobalObject", (long)jsGlobalObject);
+  setInstanceLong(env, obj, "mJSRuntime", (long)jsRuntime);
 
   LOGD("Done setting up SpiderMonkey");
 }
 
-static long getInstanceLong(JNIEnv* env, jobject obj, const char* name) {
-  jfieldID fid;
-  jobject jobj;
-  const char *str;
-
-  jclass cls = env->GetObjectClass(obj);
-
-  fid = env->GetFieldID(cls, name, "J");
-  assert(fid);
-
-  return env->GetLongField(obj, fid);
-}
-
-static JSContext* getJsContext(JNIEnv* env, jobject obj) {
-  return (JSContext*)getInstanceLong(env, obj, "mJSContext");
-}
-
-static JSObject* getJsGlobalObject(JNIEnv* env, jobject obj) {
-  return (JSObject*)getInstanceLong(env, obj, "mJSGlobalObject");
-}
-
-static JSRuntime* getJsRuntime(JNIEnv* env, jobject obj) {
-  return (JSRuntime*)getInstanceLong(env, obj, "mJSRuntime");
-}
 
 JNIEXPORT void JNICALL 
 Java_org_apache_cordova_plugins_truenative_SMRuntime_destroy(
     JNIEnv* env, jobject obj) {
   JS_DestroyContext(getJsContext(env, obj));
   JS_DestroyRuntime(getJsRuntime(env, obj));
-}
-
-jstring convertToJstring(JNIEnv* env, jobject obj, jsval stringJsval) {
-  JSContext* jsContext = getJsContext(env, obj);
-
-  JSString* jsString = JS_ValueToString(jsContext, stringJsval);
-
-  char* str = JS_EncodeString(jsContext, jsString);
-  assert(str);
-
-  jstring jString = env->NewStringUTF(str);
-
-  JS_free(jsContext, str);
-
-  return jString;
 }
 
 JNIEXPORT jstring JNICALL 
@@ -343,7 +353,7 @@ Java_org_apache_cordova_plugins_truenative_SMRuntime_writeJavascript(
 
   // Convert the jstring into a UTF-8 C string.
   const char* sourceStr = env->GetStringUTFChars(sourceCode, NULL);
-  assert(str);
+  assert(sourceStr);
 
   // Convert the C string into a jschar string.
   size_t sourceJsLen = 0;

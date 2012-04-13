@@ -12,8 +12,9 @@ public class App extends DroidGap
   public void onCreate(Bundle savedInstanceState)
   {
     SMRuntime runtime = new SMRuntime();
-    //System.out.println("js answer: "+runtime.writeJavascript("3+4"));
+    System.out.println("js answer: "+runtime.writeJavascript("3+4"));
     super.onCreate(savedInstanceState);
     super.loadUrl("file:///android_asset/www/index.html");
   }
+
 }
