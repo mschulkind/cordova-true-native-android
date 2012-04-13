@@ -9,19 +9,19 @@ extern "C" {
 #endif
 /*
  * Class:     org_apache_cordova_plugins_truenative_SMRuntime
- * Method:    setupSpiderMonkey
- * Signature: ([Ljava/lang/String;)V
- */
-JNIEXPORT void JNICALL Java_org_apache_cordova_plugins_truenative_SMRuntime_setupSpiderMonkey
-  (JNIEnv *, jobject, jobjectArray);
-
-/*
- * Class:     org_apache_cordova_plugins_truenative_SMRuntime
  * Method:    writeJavascript
  * Signature: (Ljava/lang/String;)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_org_apache_cordova_plugins_truenative_SMRuntime_writeJavascript
   (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     org_apache_cordova_plugins_truenative_SMRuntime
+ * Method:    setupSpiderMonkey
+ * Signature: (Landroid/content/res/AssetManager;[Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_org_apache_cordova_plugins_truenative_SMRuntime_setupSpiderMonkey
+  (JNIEnv *, jobject, jobject, jobjectArray);
 
 /*
  * Class:     org_apache_cordova_plugins_truenative_SMRuntime

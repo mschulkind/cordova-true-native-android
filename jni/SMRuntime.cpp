@@ -1,7 +1,9 @@
 #include "SMRuntime.h"
 
-#include "org_apache_cordova_plugins_truenative_SMRuntime.h"
+#include <stdlib.h>
 
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
 #include <android/log.h>
 #include <assert.h>
 #include <jni.h>
@@ -9,159 +11,10 @@
 
 #include <jsapi.h>
 
+#include "org_apache_cordova_plugins_truenative_SMRuntime.h"
+
 #define  LOG_TAG    "JNI_org_apache_cordova_plugins_truenative_SMRuntime"
 #define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
-
-static JSBool jsLog(JSContext *cx, unsigned argc, jsval *vp) {
-  assert(argc == 1);
-
-  //NSLog(@"%@", stringWithJsval(cx, argv[0]));
-
-  JS_SET_RVAL(cx, vp, JSVAL_VOID);
-  return JS_TRUE;
-}
-
-static JSBool jsNativeExec(JSContext *cx, unsigned argc, jsval *vp) {
-  assert(argc == 1);
-  //NSString* commandJSON = stringWithJsval(cx, argv[0]);
-
-
-  JS_SET_RVAL(cx, vp, JSVAL_VOID);
-  return JS_TRUE;
-}
-
-static JSClass jsTimerIDClass = {
-    "TimerID", JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
-    JSCLASS_NO_OPTIONAL_MEMBERS
-};
-
-static JSBool jsSetTimer(JSContext* cx, unsigned argc, jsval *vp, bool repeats) {
-  jsval* argv = JS_ARGV(cx, vp);
-  assert(argc == 2);
-  jsval callbackJsval = argv[0];
-  assert(JSVAL_IS_OBJECT(callbackJsval));
-
-  jsval intervalJsval = argv[1];
-  int intervalMsecs;
-  assert(JS_ValueToInt32(cx, intervalJsval, &intervalMsecs) == JS_TRUE);
-  assert(intervalMsecs >= 0);
-
-  //SMTimer* timer = 
-      //[SMTimer registeredTimerWithCallback:callbackJsval
-                                 //jsContext:cx
-                                  //interval:intervalMsecs / 1000.0
-                                   //repeats:repeats];
-
-  JSObject* timerID = JS_NewObject(cx, &jsTimerIDClass, NULL, NULL);
-  //JS_SetPrivate(cx, timerID, timer);
-
-  JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(timerID));
-  return JS_TRUE;
-}
-
-static JSBool jsSetTimeout(JSContext *cx, unsigned argc, jsval *vp)
-{
-  return jsSetTimer(cx, argc, vp, false);
-}
-
-static JSBool jsSetInterval(JSContext *cx, unsigned argc, jsval *vp)
-{
-  return jsSetTimer(cx, argc, vp, true);
-}
-
-static JSBool jsClearTimer(JSContext *cx, unsigned argc, jsval *vp)
-{
-  jsval* argv = JS_ARGV(cx, vp);
-  assert(argc == 1);
-  jsval timerIDJsval = argv[0];
-  if (JSVAL_IS_OBJECT(timerIDJsval) && !JSVAL_IS_NULL(timerIDJsval)) {
-    JSObject* timerID = JSVAL_TO_OBJECT(timerIDJsval);
-
-    //SMTimer* timer = 
-        //(SMTimer*)JS_GetInstancePrivate(cx, timerID, &jsTimerIDClass, NULL);
-    //assert(timer);
-
-    //[timer unregister];
-  }
-
-  JS_SET_RVAL(cx, vp, JSVAL_VOID);
-  return JS_TRUE;
-}
-
-static JSBool jsSetItem(JSContext *cx, unsigned argc, jsval *vp)
-{
-  jsval* argv = JS_ARGV(cx, vp);
-  assert(argc == 2);
-  //NSString* key = stringWithJsval(cx, argv[0]);
-  //jsval valueJsval = argv[1];
-
-  //[[NSUserDefaults standardUserDefaults] 
-      //setObject:stringWithJsval(cx, valueJsval)
-         //forKey:key];
-
-  JS_SET_RVAL(cx, vp, JSVAL_VOID);
-  return JS_TRUE;
-}
-
-static JSBool jsRemoveItem(JSContext *cx, unsigned argc, jsval *vp)
-{
-  jsval* argv = JS_ARGV(cx, vp);
-  assert(argc == 1);
-  //NSString* key = stringWithJsval(cx, argv[0]);
-
-  //[[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
-
-  JS_SET_RVAL(cx, vp, JSVAL_VOID);
-  return JS_TRUE;
-}
-
-static JSBool jsGetItem(JSContext *cx, unsigned argc, jsval *vp)
-{
-  jsval* argv = JS_ARGV(cx, vp);
-  assert(argc == 1);
-  //NSString* key = stringWithJsval(cx, argv[0]);
-
-  //NSString* value = [[NSUserDefaults standardUserDefaults] objectForKey:key];
-  //if (value) {
-    //jsval valueJsval =
-        //STRING_TO_JSVAL(
-            //JS_NewUCStringCopyZ(
-                //cx, 
-                //(jschar*)[value cStringUsingEncoding:
-                    //NSUnicodeStringEncoding]));
-    //JS_SET_RVAL(cx, rval, valueJsval);
-  //} else {
-    //JS_SET_RVAL(cx, rval, JSVAL_VOID);
-  //}
-  return JS_TRUE;
-}
-
-static JSClass jsGlobalClass = {
-    "global", JSCLASS_GLOBAL_FLAGS,
-    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
-    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
-    JSCLASS_NO_OPTIONAL_MEMBERS
-};
-
-static void loadFile(char* filename) {
-  LOGD("Loading %@", filename);
-
-  //NSString* filePath =
-      //[[NSBundle mainBundle] pathForResource:
-          //[NSString stringWithFormat:@"www/%@", filename] ofType:nil];  
-  //NSData *jsData = [NSData dataWithContentsOfFile:filePath];  
-  //assert(jsData);
-
-  //JSBool success = JS_EvaluateScript(
-      //jsContext_, jsGlobalObject_, (const char*)[jsData bytes],
-      //[jsData length], 
-      //[filename cStringUsingEncoding:NSASCIIStringEncoding], 1, NULL);
-  //if (success == JS_FALSE) {
-    //reportException(jsContext_);
-  //}
-}
 
 static jfieldID getLongFieldID(JNIEnv* env, jobject obj, const char* name) {
   jfieldID fid;
@@ -219,6 +72,157 @@ static jstring convertToJstring(JNIEnv* env, jobject obj, jsval stringJsval) {
   return jString;
 }
 
+static JSBool jsLog(JSContext *cx, unsigned argc, jsval *vp) {
+  jsval* argv = JS_ARGV(cx, vp);
+  assert(argc == 1);
+
+  char* msg = getStringChars(cx, argv[0]);
+  LOGD("%s", msg);
+  JS_free(cx, msg);
+
+  JS_SET_RVAL(cx, vp, JSVAL_VOID);
+  return JS_TRUE;
+}
+
+static JSBool jsNativeExec(JSContext *cx, unsigned argc, jsval *vp) {
+  LOGD("NativeExec");
+  assert(false);
+
+  assert(argc == 1);
+  //NSString* commandJSON = stringWithJsval(cx, argv[0]);
+
+
+  JS_SET_RVAL(cx, vp, JSVAL_VOID);
+  return JS_TRUE;
+}
+
+static JSClass jsTimerIDClass = {
+    "TimerID", JSCLASS_HAS_PRIVATE,
+    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
+    JSCLASS_NO_OPTIONAL_MEMBERS
+};
+
+static JSBool jsSetTimer(
+    JSContext* cx, unsigned argc, jsval *vp, bool repeats) {
+  jsval* argv = JS_ARGV(cx, vp);
+  assert(argc == 2);
+  jsval callbackJsval = argv[0];
+  assert(JSVAL_IS_OBJECT(callbackJsval));
+
+  jsval intervalJsval = argv[1];
+  int intervalMsecs;
+  assert(JS_ValueToInt32(cx, intervalJsval, &intervalMsecs) == JS_TRUE);
+  assert(intervalMsecs >= 0);
+
+  //SMTimer* timer = 
+      //[SMTimer registeredTimerWithCallback:callbackJsval
+                                 //jsContext:cx
+                                  //interval:intervalMsecs / 1000.0
+                                   //repeats:repeats];
+
+  JSObject* timerID = JS_NewObject(cx, &jsTimerIDClass, NULL, NULL);
+  //JS_SetPrivate(cx, timerID, timer);
+
+  JS_SET_RVAL(cx, vp, OBJECT_TO_JSVAL(timerID));
+  return JS_TRUE;
+}
+
+static JSBool jsSetTimeout(JSContext *cx, unsigned argc, jsval *vp)
+{
+  LOGD("SetTimeout");
+  assert(false);
+
+  return jsSetTimer(cx, argc, vp, false);
+}
+
+static JSBool jsSetInterval(JSContext *cx, unsigned argc, jsval *vp)
+{
+  LOGD("SetInterval");
+  assert(false);
+
+  return jsSetTimer(cx, argc, vp, true);
+}
+
+static JSBool jsClearTimer(JSContext *cx, unsigned argc, jsval *vp)
+{
+  LOGD("ClearTimer");
+  assert(false);
+
+  jsval* argv = JS_ARGV(cx, vp);
+  assert(argc == 1);
+  jsval timerIDJsval = argv[0];
+  if (JSVAL_IS_OBJECT(timerIDJsval) && !JSVAL_IS_NULL(timerIDJsval)) {
+    JSObject* timerID = JSVAL_TO_OBJECT(timerIDJsval);
+
+    //SMTimer* timer = 
+        //(SMTimer*)JS_GetInstancePrivate(cx, timerID, &jsTimerIDClass, NULL);
+    //assert(timer);
+
+    //[timer unregister];
+  }
+
+  JS_SET_RVAL(cx, vp, JSVAL_VOID);
+  return JS_TRUE;
+}
+
+static JSBool jsSetItem(JSContext *cx, unsigned argc, jsval *vp)
+{
+  LOGD("SetItem");
+  assert(false);
+
+  jsval* argv = JS_ARGV(cx, vp);
+  assert(argc == 2);
+  //NSString* key = stringWithJsval(cx, argv[0]);
+  //jsval valueJsval = argv[1];
+
+  //[[NSUserDefaults standardUserDefaults] 
+      //setObject:stringWithJsval(cx, valueJsval)
+         //forKey:key];
+
+  JS_SET_RVAL(cx, vp, JSVAL_VOID);
+  return JS_TRUE;
+}
+
+static JSBool jsRemoveItem(JSContext *cx, unsigned argc, jsval *vp)
+{
+  LOGD("RemoveItem");
+  assert(false);
+
+  jsval* argv = JS_ARGV(cx, vp);
+  assert(argc == 1);
+  //NSString* key = stringWithJsval(cx, argv[0]);
+
+  //[[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
+
+  JS_SET_RVAL(cx, vp, JSVAL_VOID);
+  return JS_TRUE;
+}
+
+static JSBool jsGetItem(JSContext *cx, unsigned argc, jsval *vp)
+{
+  LOGD("GetItem");
+  assert(false);
+
+  jsval* argv = JS_ARGV(cx, vp);
+  assert(argc == 1);
+  //NSString* key = stringWithJsval(cx, argv[0]);
+
+  //NSString* value = [[NSUserDefaults standardUserDefaults] objectForKey:key];
+  //if (value) {
+    //jsval valueJsval =
+        //STRING_TO_JSVAL(
+            //JS_NewUCStringCopyZ(
+                //cx, 
+                //(jschar*)[value cStringUsingEncoding:
+                    //NSUnicodeStringEncoding]));
+    //JS_SET_RVAL(cx, rval, valueJsval);
+  //} else {
+    //JS_SET_RVAL(cx, rval, JSVAL_VOID);
+  //}
+  return JS_TRUE;
+}
+
 static void reportError(
     JSContext* cx, const char* message, JSErrorReport* report)
 {
@@ -248,20 +252,65 @@ void reportException(JSContext* cx) {
   assert(false);
 }
 
+static void loadFile(
+    JNIEnv* env, jobject obj, jobject assetManager, const char* filename) {
+  JSContext* jsContext = getJsContext(env, obj);
+  JSObject* jsGlobalObject = getJsGlobalObject(env, obj);
+
+  LOGD("Loading %s", filename);
+
+  AAssetManager* aAssetManager = AAssetManager_fromJava(env, assetManager);
+  assert(aAssetManager);
+
+  char* fullPath = (char*)malloc(strlen(filename) + 5);
+  assert(fullPath);
+  sprintf(fullPath, "www/%s", filename);
+  AAsset* asset = 
+      AAssetManager_open(aAssetManager, fullPath, AASSET_MODE_UNKNOWN);
+  assert(asset);
+  free(fullPath);
+
+  off_t length = AAsset_getLength(asset);
+  char* code = (char*)malloc(length+1);
+  code[length] = 0;
+
+  int bytesRead = AAsset_read(asset, (void*)code, length);
+  assert(bytesRead == length);
+
+  AAsset_close(asset);
+  JSBool success = JS_EvaluateScript(
+      jsContext, jsGlobalObject, code, length, filename, 1, NULL);
+  if (success == JS_FALSE) {
+    reportException(jsContext);
+  }
+  
+  free(code);
+}
+
+static JSClass jsGlobalClass = {
+    "global", JSCLASS_GLOBAL_FLAGS,
+    JS_PropertyStub, JS_PropertyStub, JS_PropertyStub, JS_StrictPropertyStub,
+    JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub, JS_FinalizeStub,
+    JSCLASS_NO_OPTIONAL_MEMBERS
+};
+
 // See here for more info:
 // https://developer.mozilla.org/En/SpiderMonkey/JSAPI_User_Guide
 JNIEXPORT void JNICALL 
 Java_org_apache_cordova_plugins_truenative_SMRuntime_setupSpiderMonkey(
-    JNIEnv *env, jobject obj, jobjectArray sourceFileNames)
+    JNIEnv *env, jobject obj, 
+    jobject assetManager, jobjectArray sourceFilenames)
 {
   LOGD("Starting setting up SpiderMonkey");
 
   JSRuntime* jsRuntime = JS_NewRuntime(8L * 1024L * 1024L);
   assert(jsRuntime);
+  setInstanceLong(env, obj, "mJSRuntime", (long)jsRuntime);
 
   // Create a context. 
   JSContext* jsContext = JS_NewContext(jsRuntime, 8192);
   assert(jsContext);
+  setInstanceLong(env, obj, "mJSContext", (long)jsContext);
 
   JS_SetOptions(jsContext, JSOPTION_VAROBJFIX | JSOPTION_DONT_REPORT_UNCAUGHT);
   JS_SetVersion(jsContext, JSVERSION_LATEST);
@@ -270,6 +319,8 @@ Java_org_apache_cordova_plugins_truenative_SMRuntime_setupSpiderMonkey(
   // Create the global object.
   JSObject* jsGlobalObject =
       JS_NewCompartmentAndGlobalObject(jsContext, &jsGlobalClass, NULL);
+  assert(jsGlobalObject);
+  setInstanceLong(env, obj, "mJSGlobalObject", (long)jsGlobalObject);
 
   // Populate the global object with the standard globals, like object and
   // array. 
@@ -319,20 +370,22 @@ Java_org_apache_cordova_plugins_truenative_SMRuntime_setupSpiderMonkey(
       jsContext, jsGlobalObject, "document", OBJECT_TO_JSVAL(documentObject),
       NULL, NULL, 0);
 
-  //if (sourceFiles) {
-    //for (NSString* sourceFile in sourceFiles) {
-      //[self loadJavascriptFile:sourceFile];
-    //}
-  //}
+  // Load all of the source files.
+  for (int i = 0; i < env->GetArrayLength(sourceFilenames); ++i) {
+    jstring filenameJstring = 
+        (jstring)env->GetObjectArrayElement(sourceFilenames, i);
+    const char* filename = env->GetStringUTFChars(filenameJstring, NULL);
+    assert(filename);
+
+    loadFile(env, obj, assetManager, filename);
+
+    env->ReleaseStringUTFChars(filenameJstring, filename);
+  }
 
   // Set the document readyState to 'loaded'.
   JS_DefineProperty(
       jsContext, documentObject, "readyState",
       STRING_TO_JSVAL(JS_NewStringCopyZ(jsContext, "loaded")), NULL, NULL, 0);
-
-  setInstanceLong(env, obj, "mJSContext", (long)jsContext);
-  setInstanceLong(env, obj, "mJSGlobalObject", (long)jsGlobalObject);
-  setInstanceLong(env, obj, "mJSRuntime", (long)jsRuntime);
 
   LOGD("Done setting up SpiderMonkey");
 }
