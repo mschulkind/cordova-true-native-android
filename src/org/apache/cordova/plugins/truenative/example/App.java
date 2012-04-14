@@ -4,14 +4,14 @@ import android.os.Bundle;
 import android.os.Process;
 import android.provider.Settings.Secure;
 import org.apache.cordova.*;
-import org.apache.cordova.plugins.truenative.SMRuntime;
+import org.apache.cordova.plugins.truenative.SMWebView;
 
 public class App extends DroidGap
 {
   @Override
   public void onCreate(Bundle savedInstanceState)
   {
-    SMRuntime runtime = new SMRuntime(getAssets(),
+    appView = new SMWebView(this,
         "spidermonkey.js",
 
         "underscore.js",
@@ -70,4 +70,8 @@ public class App extends DroidGap
     super.loadUrl("file:///android_asset/www/index.html");
   }
 
+  @Override
+  public void sendJavascript(String statement) {
+    ((SMWebView)appView).writeJavascript(statement);
+  }
 }

@@ -11,6 +11,8 @@ LOCAL_SRC_FILES := SMRuntime.cpp
 
 LOCAL_WHOLE_STATIC_LIBRARIES := spidermonkey_static
 
+LOCAL_CFLAGS := -Werror -Wall
+
 LOCAL_LDLIBS := -llog 
 LOCAL_LDLIBS += -landroid
 
