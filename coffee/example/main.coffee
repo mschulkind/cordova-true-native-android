@@ -17,7 +17,7 @@ onTNReady = ->
         entries.push(
           userData:
             exampleName: name
-            #window: windowCallback(navController)
+            windowCallback: windowCallback
         )
 
       addExample('Action Sheet', App.createActionSheetDemoWindow)
@@ -29,7 +29,7 @@ onTNReady = ->
       constructRow = (rowEntry, row) ->
         row.setProperty('hasDetail', true)
         row.addEventListener('click', ->
-          navController.push(row.userData.window)
+          navController.push(row.userData.windowCallback(navController))
         )
 
       reuseRow = (rowEntry, row) ->
@@ -63,7 +63,7 @@ onTNReadyFull = ->
         entries.push(
           userData:
             exampleName: name
-            window: windowCallback(navController)
+            windowCallback: windowCallback
         )
 
       addExample('Action Sheet', App.createActionSheetDemoWindow)
@@ -75,7 +75,7 @@ onTNReadyFull = ->
       constructRow = (rowEntry, row) ->
         row.setProperty('hasDetail', true)
         row.addEventListener('click', ->
-          navController.push(row.userData.window)
+          navController.push(row.userData.windowCallback(navController))
         )
 
       reuseRow = (rowEntry, row) ->

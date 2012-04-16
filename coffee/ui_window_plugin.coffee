@@ -22,14 +22,6 @@ TN.UI.Window = class Window extends TN.UI.Component
 
     @registerSelfAndDescendants()
     
-    TN.platformCond(
-      android: =>
-        @createView()
-        @view.addEventOnceListener('resize', (e) =>
-          @constructView(e.width, e.height)
-        )
-    )
-
     Cordova.exec(
       null, null, @pluginID, 'open',
       [
@@ -44,6 +36,14 @@ TN.UI.Window = class Window extends TN.UI.Component
   createView: ->
     @view = new TN.UI.View(backgroundColor: 'white')
     @view.registerSelfAndDescendants()
+
+    TN.platformCond(
+      android: =>
+        @view.addEventOnceListener('resize', (e) =>
+          @constructView(e.width, e.height)
+        )
+    )
+
     @view
 
   constructView: (width, height) ->

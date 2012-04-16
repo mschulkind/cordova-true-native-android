@@ -22,17 +22,38 @@ public class TableViewPlugin extends ViewPlugin {
   }
 
   private class TableViewAdapter extends ArrayAdapter<JSONObject> {
-    private WebView mWebView;
+    private TableViewPlugin mPlugin;
+    private ListView mTableView;
 
-    public TableViewAdapter(Context context, WebView webView) {
+    public TableViewAdapter(
+        Context context, ListView tableView, TableViewPlugin plugin) {
       super(context, 0, new ArrayList<JSONObject>());
-      mWebView = webView;
+      mPlugin = plugin;
+      mTableView = tableView;
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
-      View view = new View(getContext());
-      view.setBackgroundColor(Util.parseColor("green"));
-      view.setMinimumHeight(44);
+      View view = convertView;
+      if (view == null) {
+        JSONObject viewOptions;
+        try {
+          viewOptions = new JSONObject(
+              mPlugin.writeJavascriptForComponent(mTableView, "createRow()"));
+          view = (View)mPlugin.createComponent(viewOptions);
+
+          mPlugin.writeJavascriptForComponent(
+              mTableView, 
+              "constructRow(-1, "+position+", "
+              +mPlugin.getComponentID(view)+")");
+        } catch(JSONException e) {
+          e.printStackTrace();
+          fail();
+        }
+      }
+
+      mPlugin.writeJavascriptForComponent(
+          mTableView, 
+          "reuseRow(-1, "+position+", "+mPlugin.getComponentID(view)+")");
 
       return view;
     }
@@ -53,7 +74,8 @@ public class TableViewPlugin extends ViewPlugin {
     super.setupComponent(component, options);
 
     ListView tableView = (ListView)component;
-    tableView.setAdapter(new TableViewAdapter(getDroidGap(), webView));
+    tableView.setAdapter(new TableViewAdapter(getDroidGap(), tableView, this));
+    tableView.setCacheColorHint(Util.parseColor("clear"));
 
     setComponentProperties(
       component, options,

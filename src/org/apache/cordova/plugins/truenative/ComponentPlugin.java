@@ -40,17 +40,10 @@ public class ComponentPlugin extends Plugin {
   }
 
   @Override
-	public boolean isSynch(String action) {
-		return action.equals("allocateUIID");
-  }
-
-  @Override
   public PluginResult execute(
       String action, JSONArray args, String callbackId) {
     try {
-      if (action.equals("allocateUIID")) { 
-        return this.allocateUIID(); 
-      } else if (action.equals("getProperties")) { 
+      if (action.equals("getProperties")) { 
         this.getProperties(args.getJSONObject(0)); 
       } else if (action.equals("setProperties")) { 
         this.setProperties(args.getJSONObject(0)); 
@@ -80,20 +73,24 @@ public class ComponentPlugin extends Plugin {
     }
   }
 
-  protected void sendJavascriptForComponent(
+  protected String writeJavascript(String statement) {
+    return ((SMWebView)webView).writeJavascript(
+        "JSON.stringify("+statement+")");
+  }
+
+  protected String writeJavascriptForComponent(
       String tnUIID, String statement) {
     String wrappedStatement = "TN.UI.componentMap['"+tnUIID+"']."+statement;
-    //System.out.println(wrappedStatement);
-    sendJavascript(wrappedStatement);
+    return writeJavascript(wrappedStatement);
   }
-  protected void sendJavascriptForComponent(
+  protected String writeJavascriptForComponent(
       Object component, String statement) {
-    sendJavascriptForComponent(getComponentID(component), statement);
+    return writeJavascriptForComponent(getComponentID(component), statement);
   }
 
   protected void fireEvent(
       String tnUIID, String name, JSONObject data) {
-    sendJavascriptForComponent(tnUIID, "fireEvent('"+name+"', "+data+")");
+    writeJavascriptForComponent(tnUIID, "fireEvent('"+name+"', "+data+")");
   }
   protected void fireEvent(
       Object component, String name, JSONObject data) {
@@ -174,13 +171,6 @@ public class ComponentPlugin extends Plugin {
     plugin.setupComponent(component, options);
 
     return component;
-  }
-
-  public PluginResult allocateUIID() {
-    int allocatedID = getComponentPlugin().mNextUIID;
-    getComponentPlugin().mNextUIID++;
-    return new PluginResult(
-        PluginResult.Status.OK, Integer.toString(allocatedID));
   }
 
   protected void setComponentProperty(

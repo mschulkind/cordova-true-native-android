@@ -10,7 +10,6 @@ import org.json.JSONObject;
 import static junit.framework.Assert.*;
 
 public class Window {
-  public View view;
   private WindowPlugin mPlugin;
 
   public Window(WindowPlugin plugin) {
@@ -18,18 +17,24 @@ public class Window {
   }
 
   public void setup(JSONObject options) {
-    JSONObject viewOptions = null;
-    try {
-      viewOptions = options.getJSONObject("view");
-    } catch (JSONException e) {
-      e.printStackTrace();
-      fail();
-    }
-
-    view = (View)mPlugin.createComponent(viewOptions);
   }
 
   public void open() {
-    mPlugin.getDroidGap().setContentView(view);
+    try {
+      JSONObject viewOptions = new JSONObject(
+          mPlugin.writeJavascriptForComponent(this, "createView()"));
+
+      View view = (View)mPlugin.createComponent(viewOptions);
+
+      ViewPlugin.ViewData data = 
+        (ViewPlugin.ViewData)mPlugin.getComponentData(view); 
+      data.layoutParams.width = ViewSubclass.LayoutParams.MATCH_PARENT;
+      data.layoutParams.height = ViewSubclass.LayoutParams.MATCH_PARENT;
+
+      mPlugin.getDroidGap().setContentView(view);
+    } catch(JSONException e) {
+      e.printStackTrace();
+      fail();
+    }
   }
 }

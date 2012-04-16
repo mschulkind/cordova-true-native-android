@@ -66,6 +66,7 @@ TN.UI.TableView = class TableView extends TN.UI.View
 
   createRow: ->
     row = new TN.UI.TableViewRow
+    row.height = @rowHeight
     row.registerSelfAndDescendants()
 
     row

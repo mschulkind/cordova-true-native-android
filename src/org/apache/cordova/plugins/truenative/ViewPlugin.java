@@ -22,57 +22,13 @@ import org.json.JSONObject;
 import static junit.framework.Assert.*;
 
 public class ViewPlugin extends ComponentPlugin {
-  // Borrowed from:
-  // http://www.betaful.com/2012/01/programmatic-shapes-in-android/
-  private class ViewBackground extends ShapeDrawable {
-    private final Paint mFillPaint, mStrokePaint;
-    private final int mBorderWidth;
-
-    public ViewBackground(
-        Shape s, int backgroundColor, int borderColor, int borderWidth) {
-      super(s);
-
-      mFillPaint = new Paint(this.getPaint());
-      mFillPaint.setColor(backgroundColor);
-
-      mStrokePaint = new Paint(mFillPaint);
-      mStrokePaint.setStyle(Paint.Style.STROKE);
-      mStrokePaint.setStrokeWidth(borderWidth);
-      mStrokePaint.setColor(borderColor);
-
-      mBorderWidth = borderWidth;
-    }
-
-    @Override
-    protected void onDraw(Shape shape, Canvas canvas, Paint paint) {
-      shape.resize(canvas.getClipBounds().right, canvas.getClipBounds().bottom);
-
-      Matrix matrix = new Matrix();
-      matrix.setRectToRect(
-          new RectF(
-            0, 0, 
-            canvas.getClipBounds().right, canvas.getClipBounds().bottom),
-          new RectF(
-            mBorderWidth/2, mBorderWidth/2, 
-            canvas.getClipBounds().right - mBorderWidth/2,
-            canvas.getClipBounds().bottom - mBorderWidth/2),
-          Matrix.ScaleToFit.FILL);
-      canvas.concat(matrix);
-
-      shape.draw(canvas, mFillPaint);
-      if (mBorderWidth > 0) {
-        shape.draw(canvas, mStrokePaint);
-      }
-    }
-  }
-
   protected class ViewData extends ComponentData {
-    AbsoluteLayout.LayoutParams layoutParams = 
-      new AbsoluteLayout.LayoutParams(0, 0, 0, 0);
-    AbsoluteLayout parent;
+    ViewSubclass.LayoutParams layoutParams = 
+      new ViewSubclass.LayoutParams(0, 0, 0, 0);
+    ViewSubclass parent;
 
-    int backgroundColor = 0;
-    int highlightedBackgroundColor = 0;
+    int backgroundColor = Util.parseColor("clear");
+    int highlightedBackgroundColor = Util.parseColor("clear");
     int borderColor = 0;
     int borderRadius = 0;
     int borderWidth = 0;
@@ -118,12 +74,12 @@ public class ViewPlugin extends ComponentPlugin {
     }
   }
 
-  private int convertToPixels(Object dips) {
+  protected int convertToPixels(Object dips) {
     return Math.round(((Integer)dips).intValue() 
         * getDroidGap().getResources().getDisplayMetrics().density);
   }
 
-  private int convertToDips(int pixels) {
+  protected int convertToDips(int pixels) {
     return Math.round(pixels 
         / getDroidGap().getResources().getDisplayMetrics().density);
   }
@@ -167,6 +123,50 @@ public class ViewPlugin extends ComponentPlugin {
     view.setBackgroundDrawable(
         new ViewBackground(
           roundRect, data.backgroundColor, data.borderColor, data.borderWidth));
+  }
+
+  // Borrowed from:
+  // http://www.betaful.com/2012/01/programmatic-shapes-in-android/
+  private class ViewBackground extends ShapeDrawable {
+    private final Paint mFillPaint, mStrokePaint;
+    private final int mBorderWidth;
+
+    public ViewBackground(
+        Shape s, int backgroundColor, int borderColor, int borderWidth) {
+      super(s);
+
+      mFillPaint = new Paint(this.getPaint());
+      mFillPaint.setColor(backgroundColor);
+
+      mStrokePaint = new Paint(mFillPaint);
+      mStrokePaint.setStyle(Paint.Style.STROKE);
+      mStrokePaint.setStrokeWidth(borderWidth);
+      mStrokePaint.setColor(borderColor);
+
+      mBorderWidth = borderWidth;
+    }
+
+    @Override
+    protected void onDraw(Shape shape, Canvas canvas, Paint paint) {
+      shape.resize(canvas.getClipBounds().right, canvas.getClipBounds().bottom);
+
+      Matrix matrix = new Matrix();
+      matrix.setRectToRect(
+          new RectF(
+            0, 0, 
+            canvas.getClipBounds().right, canvas.getClipBounds().bottom),
+          new RectF(
+            mBorderWidth/2, mBorderWidth/2, 
+            canvas.getClipBounds().right - mBorderWidth/2,
+            canvas.getClipBounds().bottom - mBorderWidth/2),
+          Matrix.ScaleToFit.FILL);
+      canvas.concat(matrix);
+
+      shape.draw(canvas, mFillPaint);
+      if (mBorderWidth > 0) {
+        shape.draw(canvas, mStrokePaint);
+      }
+    }
   }
 
   @Override
@@ -213,7 +213,7 @@ public class ViewPlugin extends ComponentPlugin {
           String parentID = options.getString("parentID");
           JSONObject childOptions = options.getJSONObject("child");
 
-          AbsoluteLayout parent = (AbsoluteLayout)getComponent(parentID);
+          ViewSubclass parent = (ViewSubclass)getComponent(parentID);
           View child = (View)createComponent(childOptions);
           ViewData childData = (ViewData)getComponentData(child);
           childData.parent = parent;

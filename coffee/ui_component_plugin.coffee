@@ -34,15 +34,9 @@ TN.UI.Component = class Component extends TN.Listenable
     @private = ->
 
   allocateUIID: ->
-    TN.platformCond(
-      iphone: ->
-        allocatedID = Component.nextUIID
-        Component.nextUIID++
-        "#{allocatedID}"
-
-      android: =>
-        Cordova.exec(null, null, @pluginID, 'allocateUIID', [])
-    )
+    allocatedID = Component.nextUIID
+    Component.nextUIID++
+    "#{allocatedID}"
 
   getProperties: (names, onDone) ->
     if componentMap[@tnUIID]?
