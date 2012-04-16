@@ -37,12 +37,6 @@ public class ButtonPlugin extends ViewPlugin {
 
     ButtonSubclass button = (ButtonSubclass)component;
     button.setPadding(0,0,0,0);
-
-    button.setOnClickListener(new Button.OnClickListener() {
-      public void onClick(View v) {
-        fireEvent(v, "click", null);
-      }
-    });
   }
 
   @Override

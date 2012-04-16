@@ -29,7 +29,8 @@ onTNReady = ->
       constructRow = (rowEntry, row) ->
         row.setProperty('hasDetail', true)
         row.addEventListener('click', ->
-          navController.push(row.userData.windowCallback(navController))
+          puts "CLICK!"
+          #navController.push(row.userData.windowCallback(navController))
         )
 
       reuseRow = (rowEntry, row) ->

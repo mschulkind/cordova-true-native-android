@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -76,6 +77,13 @@ public class TableViewPlugin extends ViewPlugin {
     ListView tableView = (ListView)component;
     tableView.setAdapter(new TableViewAdapter(getDroidGap(), tableView, this));
     tableView.setCacheColorHint(Util.parseColor("clear"));
+
+    tableView.setOnItemClickListener(new ListView.OnItemClickListener() {
+      public void onItemClick(
+          AdapterView<?> parent, View view, int position, long id) {
+        fireEvent(view, "click", null);
+      }
+    });
 
     setComponentProperties(
       component, options,

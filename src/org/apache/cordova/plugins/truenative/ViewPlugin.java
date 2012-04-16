@@ -52,6 +52,13 @@ public class ViewPlugin extends ComponentPlugin {
         component, options, 
         "top", "left", "width", "height", "backgroundColor", "borderRadius",
         "borderColor", "borderWidth");
+
+    View view = (View)component;
+    view.setOnClickListener(new View.OnClickListener() {
+      public void onClick(View v) {
+        fireEvent(v, "click", null);
+      }
+    });
   }
 
   @Override
