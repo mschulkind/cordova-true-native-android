@@ -46,8 +46,6 @@ public class ActionSheetPlugin extends ComponentPlugin {
       }
       fireEvent(mTNUIID, "actionSheetClick", data);
 
-      // TODO(mschulkind): Destroy the action sheet on the JS side.
-
       return true;
     }
   }
@@ -86,7 +84,9 @@ public class ActionSheetPlugin extends ComponentPlugin {
   public void show(final JSONObject options) {
     ctx.runOnUiThread(new Runnable() {
       public void run() {
-        View currentWindowView = WindowPlugin.openWindow.view;
+        WindowPlugin windowPlugin = (WindowPlugin)getPluginFor(
+          "cordovatruenative.window");
+        View currentWindowView = windowPlugin.windowStack.peek().view;
         currentWindowView.setOnCreateContextMenuListener(
             new ContextCreateListener(options));
         currentWindowView.showContextMenu();

@@ -49,26 +49,13 @@ public class ViewSubclass extends ViewGroup {
     int count = getChildCount();
     for (int i = 0; i < count; i++) {
       View child = getChildAt(i);
+      ViewSubclass.LayoutParams params = 
+        (ViewSubclass.LayoutParams)child.getLayoutParams();
 
-      ViewPlugin.ViewData data = 
-        (ViewPlugin.ViewData)mPlugin.getComponentData(this);
-      assertNotNull(data);
-      ViewSubclass.LayoutParams params = data.layoutParams;
-
-      int parentWidth = r - l;
-      int parentHeight = b - t;
-
-      int width = params.width;
-      int height = params.height;
-
-      if (width == ViewGroup.LayoutParams.MATCH_PARENT) {
-        width = parentWidth;
-      }
-      if (height == ViewGroup.LayoutParams.MATCH_PARENT) {
-        height = parentHeight;
-      }
-
-      child.layout(params.x, params.y, params.x + width, params.y + height);
+      child.layout(
+          params.x, params.y, 
+          params.x + child.getMeasuredWidth(), 
+          params.y + child.getMeasuredHeight());
     }
   }
 

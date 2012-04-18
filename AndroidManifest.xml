@@ -39,5 +39,7 @@
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
+
+    <activity android:name="org.apache.cordova.plugins.truenative.WindowActivity" />
   </application>
 </manifest> 

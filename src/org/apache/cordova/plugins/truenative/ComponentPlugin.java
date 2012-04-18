@@ -28,7 +28,7 @@ public class ComponentPlugin extends Plugin {
   private HashMap<String, ComponentData> mComponentDataMap =
     new HashMap<String, ComponentData>();
 
-  protected Object newComponentInstance() { 
+  protected Object newComponentInstance(Context context) { 
     fail(); 
     return null;
   }
@@ -59,8 +59,8 @@ public class ComponentPlugin extends Plugin {
     return new PluginResult(PluginResult.Status.OK, "");
   }
 
-  protected DroidGap getDroidGap() {
-    return ((DroidGap)ctx);
+  protected TrueNativeActivity getTrueNativeActivity() {
+    return ((TrueNativeActivity)ctx);
   }
 
   // Returns the ComponentPlugin plugin instance, not just the current plugin
@@ -133,9 +133,9 @@ public class ComponentPlugin extends Plugin {
     return getComponentData(getComponentID(component));
   }
 
-  private ComponentPlugin getPluginFor(String pluginID) {
+  protected ComponentPlugin getPluginFor(String pluginID) {
     ComponentPlugin plugin = 
-      (ComponentPlugin)getDroidGap()
+      (ComponentPlugin)getTrueNativeActivity()
         .pluginManager
         .getPlugin(pluginID);
     assertNotNull(plugin);
@@ -154,7 +154,7 @@ public class ComponentPlugin extends Plugin {
     return getPluginFor(pluginID);
   }
 
-  protected Object createComponent(JSONObject options) {
+  protected Object createComponent(Context context, JSONObject options) {
     String tnUIID = null;
     try {
       tnUIID = options.getString("tnUIID");
@@ -165,7 +165,7 @@ public class ComponentPlugin extends Plugin {
 
     ComponentPlugin plugin = getPluginFor(options);
 
-    Object component = plugin.newComponentInstance();
+    Object component = plugin.newComponentInstance(context);
     ComponentData componentData = plugin.newComponentDataInstance();
     plugin.registerComponent(component, componentData, tnUIID);
     plugin.setupComponent(component, options);
@@ -224,7 +224,7 @@ public class ComponentPlugin extends Plugin {
   public PluginResult getProperties(final JSONObject options) {
     final JSONObject properties = new JSONObject();
 
-    ctx.runOnUiThread(new Runnable() {
+    getTrueNativeActivity().runOnUiThreadAndWait(new Runnable() {
       public void run() {
         try {
           String tnUIID = options.getString("componentID");

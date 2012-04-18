@@ -1,25 +1,24 @@
 package org.apache.cordova.plugins.truenative;
 
 import android.content.res.AssetManager;
-import org.apache.cordova.DroidGap;
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import static junit.framework.Assert.*;
 
 public class SMRuntime {
-  private DroidGap mDroidGap;
   private long mJSContext;
   private long mJSGlobalObject;
   private long mJSRuntime;
   private SMTimerScheduler mScheduler;
+  private TrueNativeActivity mTrueNativeActivity;
 
   public SMRuntime(
-      DroidGap droidGap, String... sourceFilenames) {
-    mDroidGap = droidGap;
-    mScheduler = new SMTimerScheduler(droidGap);
+      TrueNativeActivity trueNativeActivity, String... sourceFilenames) {
+    mTrueNativeActivity = trueNativeActivity;
+    mScheduler = new SMTimerScheduler(mTrueNativeActivity);
 
-    setupSpiderMonkey(droidGap.getAssets(), sourceFilenames);
+    setupSpiderMonkey(mTrueNativeActivity.getAssets(), sourceFilenames);
   }
 
   public native String writeJavascript(String sourceCode);
@@ -42,9 +41,9 @@ public class SMRuntime {
       String callbackId = array.getString(2);
       boolean async = array.getBoolean(3);
       result = 
-        mDroidGap.pluginManager.exec(
+        mTrueNativeActivity.pluginManager.exec(
             service, action, callbackId, args, async);
-    } catch (JSONException e) {
+    } catch (Exception e) {
       e.printStackTrace();
       fail();
     }

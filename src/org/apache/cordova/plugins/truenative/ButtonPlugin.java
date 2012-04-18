@@ -18,8 +18,8 @@ public class ButtonPlugin extends ViewPlugin {
   }
 
   @Override
-  protected Object newComponentInstance() {
-    return new ButtonSubclass(getDroidGap(), this);
+  protected Object newComponentInstance(Context context) {
+    return new ButtonSubclass(context, this);
   }
 
   @Override

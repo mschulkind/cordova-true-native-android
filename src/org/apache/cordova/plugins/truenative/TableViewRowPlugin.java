@@ -21,8 +21,8 @@ public class TableViewRowPlugin extends ViewPlugin {
   }
 
   @Override
-  protected Object newComponentInstance() {
-    return new TableViewRowSubclass(getDroidGap(), this);
+  protected Object newComponentInstance(Context context) {
+    return new TableViewRowSubclass(context, this);
   }
 
   @Override
@@ -65,7 +65,7 @@ public class TableViewRowPlugin extends ViewPlugin {
         // Since android has no built in text label for rows, create our own
         // label to display the text.
         if (data.textLabel == null) {
-          data.textLabel = new TextView(getDroidGap());
+          data.textLabel = new TextView(row.getContext());
           data.textLabel.setPadding(10, 10, 10, 10);
           data.textLabel.setTextColor(Util.parseColor("black"));
           data.textLabel.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 20);

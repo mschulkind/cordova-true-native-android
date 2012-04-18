@@ -26,9 +26,8 @@ public class TableViewPlugin extends ViewPlugin {
     private TableViewPlugin mPlugin;
     private ListView mTableView;
 
-    public TableViewAdapter(
-        Context context, ListView tableView, TableViewPlugin plugin) {
-      super(context, 0, new ArrayList<JSONObject>());
+    public TableViewAdapter(ListView tableView, TableViewPlugin plugin) {
+      super(tableView.getContext(), 0, new ArrayList<JSONObject>());
       mPlugin = plugin;
       mTableView = tableView;
     }
@@ -40,7 +39,7 @@ public class TableViewPlugin extends ViewPlugin {
         try {
           viewOptions = new JSONObject(
               mPlugin.writeJavascriptForComponent(mTableView, "createRow()"));
-          view = (View)mPlugin.createComponent(viewOptions);
+          view = (View)mPlugin.createComponent(getContext(), viewOptions);
 
           mPlugin.writeJavascriptForComponent(
               mTableView, 
@@ -55,14 +54,14 @@ public class TableViewPlugin extends ViewPlugin {
       mPlugin.writeJavascriptForComponent(
           mTableView, 
           "reuseRow(-1, "+position+", "+mPlugin.getComponentID(view)+")");
-
+          
       return view;
     }
   }
 
   @Override
-  protected Object newComponentInstance() {
-    return new TableViewSubclass(getDroidGap(), this);
+  protected Object newComponentInstance(Context context) {
+    return new TableViewSubclass(context, this);
   }
 
   @Override
@@ -75,7 +74,7 @@ public class TableViewPlugin extends ViewPlugin {
     super.setupComponent(component, options);
 
     ListView tableView = (ListView)component;
-    tableView.setAdapter(new TableViewAdapter(getDroidGap(), tableView, this));
+    tableView.setAdapter(new TableViewAdapter(tableView, this));
     tableView.setCacheColorHint(Util.parseColor("clear"));
 
     tableView.setOnItemClickListener(new ListView.OnItemClickListener() {

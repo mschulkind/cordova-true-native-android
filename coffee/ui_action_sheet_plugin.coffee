@@ -14,6 +14,8 @@ TN.UI.ActionSheet = class ActionSheet extends TN.UI.View
       raise "button not found" unless button?
 
       button?.action()
+
+      @unregister()
     )
 
   addButton: (options) ->

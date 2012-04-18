@@ -11,7 +11,6 @@ import android.graphics.drawable.shapes.RoundRectShape;
 import android.graphics.drawable.shapes.Shape;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsoluteLayout;
 
 import org.apache.cordova.api.Plugin;
 import org.apache.cordova.api.PluginResult;
@@ -35,8 +34,8 @@ public class ViewPlugin extends ComponentPlugin {
   }
 
   @Override
-  protected Object newComponentInstance() {
-    return new ViewSubclass(getDroidGap(), this);
+  protected Object newComponentInstance(Context context) {
+    return new ViewSubclass(context, this);
   }
 
   @Override
@@ -83,12 +82,12 @@ public class ViewPlugin extends ComponentPlugin {
 
   protected int convertToPixels(Object dips) {
     return Math.round(((Integer)dips).intValue() 
-        * getDroidGap().getResources().getDisplayMetrics().density);
+        * getTrueNativeActivity().getResources().getDisplayMetrics().density);
   }
 
   protected int convertToDips(int pixels) {
     return Math.round(pixels 
-        / getDroidGap().getResources().getDisplayMetrics().density);
+        / getTrueNativeActivity().getResources().getDisplayMetrics().density);
   }
 
   public void onViewSizeChanged(
@@ -114,9 +113,9 @@ public class ViewPlugin extends ComponentPlugin {
     } else if (key.equals("left")) {
       return convertToDips(data.layoutParams.x);
     } else if (key.equals("width")) {
-      return convertToDips(data.layoutParams.width);
+      return convertToDips(view.getMeasuredWidth());
     } else if (key.equals("height")) {
-      return convertToDips(data.layoutParams.height);
+      return convertToDips(view.getMeasuredHeight());
     } else {
       return super.getComponentProperty(component, key);
     }
@@ -221,7 +220,7 @@ public class ViewPlugin extends ComponentPlugin {
           JSONObject childOptions = options.getJSONObject("child");
 
           ViewSubclass parent = (ViewSubclass)getComponent(parentID);
-          View child = (View)createComponent(childOptions);
+          View child = (View)createComponent(parent.getContext(), childOptions);
           ViewData childData = (ViewData)getComponentData(child);
           childData.parent = parent;
           parent.addView(child, childData.layoutParams);

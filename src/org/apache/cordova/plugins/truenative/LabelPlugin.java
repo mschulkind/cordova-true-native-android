@@ -17,8 +17,8 @@ public class LabelPlugin extends ViewPlugin {
   }
 
   @Override
-  protected Object newComponentInstance() {
-    return new LabelSubclass(getDroidGap(), this);
+  protected Object newComponentInstance(Context context) {
+    return new LabelSubclass(context, this);
   }
 
   @Override

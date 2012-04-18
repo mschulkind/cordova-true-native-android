@@ -1,17 +1,13 @@
 package org.apache.cordova.plugins.truenative.example;
 
 import android.os.Bundle;
-import android.os.Process;
-import android.provider.Settings.Secure;
-import org.apache.cordova.*;
-import org.apache.cordova.plugins.truenative.SMWebView;
+import org.apache.cordova.plugins.truenative.TrueNativeActivity;
 
-public class App extends DroidGap
-{
+public class App extends TrueNativeActivity {
   @Override
   public void onCreate(Bundle savedInstanceState)
   {
-    appView = new SMWebView(this,
+    super.onCreate(savedInstanceState,
         "spidermonkey.js",
 
         "underscore.js",
@@ -65,13 +61,5 @@ public class App extends DroidGap
         "example/instagram_demo.js",
         "example/twitter_demo.js",
         "example/main.js");
-
-    super.onCreate(savedInstanceState);
-    super.loadUrl("file:///android_asset/www/index.html");
-  }
-
-  @Override
-  public void sendJavascript(String statement) {
-    ((SMWebView)appView).writeJavascript(statement);
   }
 }

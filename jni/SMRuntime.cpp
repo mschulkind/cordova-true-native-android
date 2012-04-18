@@ -64,6 +64,7 @@ static jstring convertToJstring(JNIEnv* env, jobject obj, jsval stringJsval) {
   JSContext* jsContext = getJsContext(env, obj);
 
   char* str = getStringChars(env, obj, stringJsval);
+  assert(str);
   jstring jString = env->NewStringUTF(str);
   JS_free(jsContext, str);
 
