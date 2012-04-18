@@ -2,6 +2,7 @@ package org.apache.cordova.plugins.truenative;
 
 import android.content.Context;
 import android.os.Process;
+import android.view.View;
 import org.apache.cordova.api.Plugin;
 import org.apache.cordova.api.PluginResult;
 import org.json.JSONArray;
@@ -15,11 +16,36 @@ import static junit.framework.Assert.*;
 public class WindowPlugin extends ComponentPlugin {
   protected Stack<WindowComponent> windowStack = new Stack<WindowComponent>();
 
-  protected void onWindowCreate(WindowComponent window) {
+  protected void onWindowCreate(String windowID, WindowActivity activity) {
+    WindowComponent window = (WindowComponent)getComponent(windowID);
+    window.activity = activity;
+
     windowStack.push(window);
+
+    activity.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+
+    try {
+      // Create the window's backing view.
+      JSONObject viewOptions = new JSONObject(
+          writeJavascriptForComponent(window, "createView()"));
+      window.view = (View)createComponent(activity, viewOptions);
+
+      // Set the view to expand to the window's full size.
+      ViewPlugin.ViewData data = 
+        (ViewPlugin.ViewData)getComponentData(window.view); 
+      data.layoutParams.width = ViewSubclass.LayoutParams.MATCH_PARENT;
+      data.layoutParams.height = ViewSubclass.LayoutParams.MATCH_PARENT;
+
+      activity.setContentView(window.view);
+    } catch(JSONException e) {
+      e.printStackTrace();
+      fail();
+    }
   }
 
-  protected void onWindowDestroy(WindowComponent window) {
+  protected void onWindowDestroy(String windowID) {
+    WindowComponent window = (WindowComponent)getComponent(windowID);
+
     assertEquals(windowStack.peek(), window);
     windowStack.pop();
 
