@@ -46,11 +46,15 @@ public class WindowActivity extends Activity {
       assertNotNull(windowID);
       mWindow = (WindowComponent)mPlugin.getComponent(windowID);
 
+      mWindow.activity = this;
+      mPlugin.onWindowCreate(mWindow);
+
+      // Create the window's backing view.
       JSONObject viewOptions = new JSONObject(
           mPlugin.writeJavascriptForComponent(mWindow, "createView()"));
-
       mWindow.view = (View)mPlugin.createComponent(this, viewOptions);
 
+      // Set the view to expand to the window's full size.
       ViewPlugin.ViewData data = 
         (ViewPlugin.ViewData)mPlugin.getComponentData(mWindow.view); 
       data.layoutParams.width = ViewSubclass.LayoutParams.MATCH_PARENT;

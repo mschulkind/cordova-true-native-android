@@ -2,7 +2,6 @@ package org.apache.cordova.plugins.truenative;
 
 import android.content.Context;
 
-import org.apache.cordova.DroidGap;
 import org.apache.cordova.api.Plugin;
 import org.apache.cordova.api.PluginManager;
 import org.apache.cordova.api.PluginResult;

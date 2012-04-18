@@ -15,6 +15,10 @@ import static junit.framework.Assert.*;
 public class WindowPlugin extends ComponentPlugin {
   protected Stack<WindowComponent> windowStack = new Stack<WindowComponent>();
 
+  protected void onWindowCreate(WindowComponent window) {
+    windowStack.push(window);
+  }
+
   protected void onWindowDestroy(WindowComponent window) {
     assertEquals(windowStack.peek(), window);
     windowStack.pop();
@@ -27,7 +31,7 @@ public class WindowPlugin extends ComponentPlugin {
 
   @Override
   protected Object newComponentInstance(Context context) {
-    return new WindowComponent(context, this);
+    return new WindowComponent(this);
   }
 
   @Override
@@ -40,7 +44,7 @@ public class WindowPlugin extends ComponentPlugin {
       String action, JSONArray args, String callbackId) {
     JSONObject options;
     try {
-      if (action.equals("open")) { this.open(args.getJSONObject(0)); }
+      if (action.equals("open")) { open(args.getJSONObject(0)); }
       else { return super.execute(action, args, callbackId); }
     } catch (JSONException e) {
       return new PluginResult(PluginResult.Status.JSON_EXCEPTION);
@@ -64,9 +68,8 @@ public class WindowPlugin extends ComponentPlugin {
           }
 
           WindowComponent window =
-              (WindowComponent)createComponent(context, windowOptions);
-          windowStack.push(window);
-          window.open();
+              (WindowComponent)createComponent(null, windowOptions);
+          window.open(context);
         }
       });
     } catch (JSONException e) {
