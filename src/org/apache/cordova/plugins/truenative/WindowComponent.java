@@ -9,6 +9,7 @@ public class WindowComponent {
   private WindowPlugin mPlugin;
   public Activity activity;
   public View view;
+  public Runnable onCreateListener;
 
   public WindowComponent(WindowPlugin plugin) {
     mPlugin = plugin;

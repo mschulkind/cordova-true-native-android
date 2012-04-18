@@ -16,10 +16,32 @@ public class NavigationController extends WindowComponent {
     super(plugin);
   }
 
+  private void openWindow(final WindowComponent window, Context parentContext) {
+    window.onCreateListener = new Runnable() {
+      public void run() {
+        // Open the next window if any have been pushed after this window.
+        int pos = mWindowStack.search(window);
+        if (pos != 1) {
+          openWindow(
+              mWindowStack.get(mWindowStack.size() - pos + 1),
+              window.activity);
+        }
+      }
+    };
+    window.open(parentContext);
+  }
+
   public void push(WindowComponent window) {
     if (mOpened) {
       Context parentContext = mWindowStack.peek().activity;
-      window.open(parentContext);
+
+      // If the top of the stack does not yet have an activity, it means all of
+      // the windows on the stack have not yet fully opened. We only need to
+      // push this new window onto the stack and it will get opened after the
+      // previous is opened.
+      if (parentContext != null) {
+        openWindow(window, parentContext);
+      }
     }
 
     mWindowStack.push(window);
@@ -43,11 +65,7 @@ public class NavigationController extends WindowComponent {
     assertFalse(mOpened);
     mOpened = true;
 
-    Context nextParentContext = parentContext;
-    for (WindowComponent window : mWindowStack) {
-      window.open(nextParentContext);
-      nextParentContext = window.activity;
-    }
+    openWindow(mWindowStack.get(0), parentContext);
   }
 }
 

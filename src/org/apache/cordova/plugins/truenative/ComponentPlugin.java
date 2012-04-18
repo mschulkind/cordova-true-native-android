@@ -48,6 +48,7 @@ public class ComponentPlugin extends Plugin {
         this.setProperties(args.getJSONObject(0)); 
       } else if (action.equals("loadJavascript")) {
         // TODO(mschulkind): Actually do something here.
+      } else if (action.equals("noop")) {
       } else {
         assertTrue("action '"+ action + "' not found", false);
       }

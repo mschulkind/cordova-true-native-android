@@ -50,20 +50,25 @@ public class NavigationControllerPlugin extends WindowPlugin {
     return new PluginResult(PluginResult.Status.OK, "");
   }
 
-  public void push(JSONObject options) {
-    try {
-      String parentID = options.getString("parentID");
-      NavigationController parent = 
-        (NavigationController)getComponent(parentID);
+  public void push(final JSONObject options) {
+    ctx.runOnUiThread(new Runnable() {
+      public void run() {
+        try {
+          String parentID = options.getString("parentID");
+          NavigationController parent = 
+              (NavigationController)getComponent(parentID);
 
-      WindowComponent child = 
-        (WindowComponent)createComponent(null, options.getJSONObject("child"));
+          WindowComponent child = 
+              (WindowComponent)createComponent(
+                  null, options.getJSONObject("child"));
 
-      parent.push(child);
-    } catch(JSONException e) {
-      e.printStackTrace();
-      fail();
-    }
+          parent.push(child);
+        } catch(JSONException e) {
+          e.printStackTrace();
+          fail();
+        }
+      }
+    });
   }
 
   public void pop(JSONObject options) {

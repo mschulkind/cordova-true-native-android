@@ -41,6 +41,11 @@ public class WindowPlugin extends ComponentPlugin {
       e.printStackTrace();
       fail();
     }
+
+    if (window.onCreateListener != null) {
+      window.onCreateListener.run();
+      window.onCreateListener = null;
+    }
   }
 
   protected void onWindowDestroy(String windowID) {
