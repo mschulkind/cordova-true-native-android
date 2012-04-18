@@ -51,3 +51,5 @@ onTNReady = ->
       TN.glueViews(view, tableView)
   ))
   navController.open()
+
+  navController.push(App.createTwitterDemoWindow())

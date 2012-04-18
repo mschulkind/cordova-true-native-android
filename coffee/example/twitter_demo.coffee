@@ -8,8 +8,8 @@ App.createTwitterDemoWindow = ->
         rowHeight: 86
 
         # Provide a fetcher so the table is pull-to-refreshable.
-        refreshCallback: (onDone) ->
-          updateResults(onDone)
+        #refreshCallback: (onDone) ->
+          #updateResults(onDone)
       )
 
       updateResults = (onDone) ->
@@ -74,12 +74,12 @@ App.createTwitterDemoWindow = ->
             padding: 5
           )
           gridCell.add(imageAndTextCell)
-          row.userData.imageView = imageView = new TN.UI.ImageView(
-            width: 48
-            height: 48
-            backgroundColor: '#bbb'
-          )
-          imageAndTextCell.add(imageView)
+          #row.userData.imageView = imageView = new TN.UI.ImageView(
+            #width: 48
+            #height: 48
+            #backgroundColor: '#bbb'
+          #)
+          #imageAndTextCell.add(imageView)
 
           imageAndTextCell.add(new TN.UI.View(width: 5))
 

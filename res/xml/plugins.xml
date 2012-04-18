@@ -24,6 +24,7 @@
     <plugin name="cordovatruenative.navigationcontroller" value="org.apache.cordova.plugins.truenative.NavigationControllerPlugin"/>
     <plugin name="cordovatruenative.tableview" value="org.apache.cordova.plugins.truenative.TableViewPlugin"/>
     <plugin name="cordovatruenative.tableviewrow" value="org.apache.cordova.plugins.truenative.TableViewRowPlugin"/>
+    <plugin name="cordovatruenative.textfield" value="org.apache.cordova.plugins.truenative.TextFieldPlugin"/>
     <plugin name="cordovatruenative.view" value="org.apache.cordova.plugins.truenative.ViewPlugin"/>
     <plugin name="cordovatruenative.window" value="org.apache.cordova.plugins.truenative.WindowPlugin"/>
 </plugins>

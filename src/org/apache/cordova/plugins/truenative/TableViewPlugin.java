@@ -22,38 +22,85 @@ public class TableViewPlugin extends ViewPlugin {
   protected class TableViewData extends ViewData {
   }
 
-  private class TableViewAdapter extends ArrayAdapter<JSONObject> {
+  private class TableViewAdapter extends ArrayAdapter<Object> {
     private TableViewPlugin mPlugin;
     private ListView mTableView;
+    private View mHeaderView;
 
     public TableViewAdapter(ListView tableView, TableViewPlugin plugin) {
-      super(tableView.getContext(), 0, new ArrayList<JSONObject>());
+      super(tableView.getContext(), 0, new ArrayList<Object>());
       mPlugin = plugin;
       mTableView = tableView;
     }
 
-    public View getView(int position, View convertView, ViewGroup parent) {
-      View view = convertView;
-      if (view == null) {
-        JSONObject viewOptions;
-        try {
-          viewOptions = new JSONObject(
-              mPlugin.writeJavascriptForComponent(mTableView, "createRow()"));
-          view = (View)mPlugin.createComponent(getContext(), viewOptions);
+    // The header view counts as a row, so compensate accordingly.
+    private int getAdjustedPosition(int position) {
+      return (mHeaderView == null) ? position : position - 1;
+    }
 
-          mPlugin.writeJavascriptForComponent(
-              mTableView, 
-              "constructRow(-1, "+position+", "
-              +mPlugin.getComponentID(view)+")");
-        } catch(JSONException e) {
-          e.printStackTrace();
-          fail();
-        }
+    public void setHeaderView(View view) {
+      if (mHeaderView != null) {
+        remove(mHeaderView);
       }
 
-      mPlugin.writeJavascriptForComponent(
-          mTableView, 
-          "reuseRow(-1, "+position+", "+mPlugin.getComponentID(view)+")");
+
+      if (view != null) {
+        insert(view, 0);
+      }
+
+      mHeaderView = view;
+
+      notifyDataSetChanged();
+    }
+
+    @Override
+    public void clear() {
+      super.clear();
+
+      if (mHeaderView != null) {
+        // Add one back for the header view.
+        add(mHeaderView);
+      }
+    }
+
+    @Override
+    public boolean isEnabled(int position) {
+      // All are enabled except the header view.
+      return getAdjustedPosition(position) != -1;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+      int adjustedPosition = getAdjustedPosition(position);
+
+      View view;
+      if (adjustedPosition == -1) {
+        assertNotNull(mHeaderView);
+        return mHeaderView;
+      } else {
+        view = convertView;
+        if (view == null) {
+          JSONObject viewOptions;
+          try {
+            viewOptions = new JSONObject(
+                mPlugin.writeJavascriptForComponent(mTableView, "createRow()"));
+            view = (View)mPlugin.createComponent(getContext(), viewOptions);
+
+            mPlugin.writeJavascriptForComponent(
+                mTableView, 
+                "constructRow(-1, "+adjustedPosition+", "
+                +mPlugin.getComponentID(view)+")");
+          } catch(JSONException e) {
+            e.printStackTrace();
+            fail();
+          }
+        }
+
+        mPlugin.writeJavascriptForComponent(
+            mTableView, 
+            "reuseRow(-1, "+adjustedPosition+", "
+            +mPlugin.getComponentID(view)+")");
+      }
           
       return view;
     }
@@ -116,6 +163,9 @@ public class TableViewPlugin extends ViewPlugin {
         assertNotNull(entry);
         adapter.add(entry);
       }
+    } else if (key.equals("headerView")) {
+      ((TableViewAdapter)tableView.getAdapter()).setHeaderView(
+          (View)createComponent(tableView.getContext(), (JSONObject)value));
     } else {
       super.setComponentProperty(component, key, value);
     }

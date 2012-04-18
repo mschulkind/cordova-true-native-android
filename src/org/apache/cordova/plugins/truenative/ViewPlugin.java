@@ -58,6 +58,18 @@ public class ViewPlugin extends ComponentPlugin {
         fireEvent(v, "click", null);
       }
     });
+
+    try {
+      JSONArray children = options.optJSONArray("children");
+      if (children != null) {
+        for (int i = 0; i < children.length(); ++i) {
+          addChildView((ViewSubclass)view, children.getJSONObject(i));
+        }
+      }
+    } catch(JSONException e) {
+      e.printStackTrace();
+      fail();
+    }
   }
 
   @Override
@@ -212,18 +224,21 @@ public class ViewPlugin extends ComponentPlugin {
     }
   }
 
+  private void addChildView(ViewSubclass parent, JSONObject childOptions) {
+    View child = (View)createComponent(parent.getContext(), childOptions);
+    ViewData childData = (ViewData)getComponentData(child);
+    childData.parent = parent;
+    parent.addView(child, childData.layoutParams);
+  }
+
   public void add(final JSONObject options) {
     ctx.runOnUiThread(new Runnable() {
       public void run() {
         try {
           String parentID = options.getString("parentID");
-          JSONObject childOptions = options.getJSONObject("child");
-
           ViewSubclass parent = (ViewSubclass)getComponent(parentID);
-          View child = (View)createComponent(parent.getContext(), childOptions);
-          ViewData childData = (ViewData)getComponentData(child);
-          childData.parent = parent;
-          parent.addView(child, childData.layoutParams);
+          JSONObject childOptions = options.getJSONObject("child");
+          addChildView(parent, childOptions);
         } catch(JSONException e) {
           e.printStackTrace();
           fail();
