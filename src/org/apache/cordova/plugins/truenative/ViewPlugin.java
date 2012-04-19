@@ -78,6 +78,9 @@ public class ViewPlugin extends ComponentPlugin {
     JSONObject options;
     try {
       if (action.equals("add")) { this.add(args.getJSONObject(0)); }
+      else if (action.equals("sizeToFit")) { 
+        this.sizeToFit(args.getJSONObject(0)); 
+      }
       else { return super.execute(action, args, callbackId); }
     } catch (JSONException e) {
       return new PluginResult(PluginResult.Status.JSON_EXCEPTION);
@@ -86,7 +89,7 @@ public class ViewPlugin extends ComponentPlugin {
     return new PluginResult(PluginResult.Status.OK, "");
   }
 
-  private void updateLayoutParams(View view, ViewData data) {
+  protected void updateLayoutParams(View view, ViewData data) {
     if (data.parent != null) {
       data.parent.updateViewLayout(view, data.layoutParams);
     }
@@ -245,5 +248,9 @@ public class ViewPlugin extends ComponentPlugin {
         }
       }
     });
+  }
+
+  public void sizeToFit(final JSONObject options) {
+    fail();
   }
 }

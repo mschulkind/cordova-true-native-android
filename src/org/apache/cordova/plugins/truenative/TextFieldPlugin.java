@@ -58,8 +58,32 @@ public class TextFieldPlugin extends ViewPlugin {
 
     if (key.equals("hint")) {
       textField.setHint((String)value);
+    } else if (key.equals("text")) {
+      textField.setText((String)value);
     } else {
       super.setComponentProperty(component, key, value);
     }
+  }
+
+  @Override
+  public void sizeToFit(final JSONObject options) {
+    ctx.runOnUiThread(new Runnable() {
+      public void run() {
+        try {
+          String viewID = options.getString("viewID");
+          EditText textField = (EditText)getComponent(viewID);
+          TextFieldData data = (TextFieldData)getComponentData(textField);
+
+          textField.measure(0, 0);
+          data.layoutParams.width = textField.getMeasuredWidth();
+          data.layoutParams.height = textField.getMeasuredHeight();
+          updateLayoutParams(textField, data);
+
+        } catch(JSONException e) {
+          e.printStackTrace();
+          fail();
+        }
+      }
+    });
   }
 }

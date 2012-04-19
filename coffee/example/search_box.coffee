@@ -14,38 +14,33 @@ App.createSearchBoxHeaderView = (options) ->
 
   # Wait until the parent tableview resizes us before adding the textField.
   headerCell.view.addEventOnceListener('resize', ->
-    #textField = null
+    textField = null
 
     headerCell.batchUpdates(->
-      textFieldFrame = new TN.GridCell(
-        growMode: 'horizontal'
-        view: new TN.UI.View(
-          borderWidth: 1
-          borderColor: 'black'
-          borderRadius: 15
-          backgroundColor: 'white'
-        )
+      textField = new TN.UI.TextField(
+        hint: hint
+        backgroundColor: 'white'
+        borderColor: 'black'
+        borderWidth: 1
+        text: 'jZ'
       )
-      headerCell.add(textFieldFrame)
 
-      #textField = new TN.UI.TextField(
-        #hint: hint
-        #backgroundColor: "red"
-      #)
+      textField.addEventListener('change', (e) -> onChange?(e))
+      textField.addEventListener('done', (e) -> onDone?(e))
 
-      #textField.addEventListener('change', (e) -> onChange?(e))
-      #textField.addEventListener('done', (e) -> onDone?(e))
-
-      #textFieldFrame.add(new TN.GridCell(
-        #growMode: 'horizontal'
-        #inheritViewSizeMode: 'height'
-        #view: textField
-      #))
+      headerCell.add(new TN.GridCell(
+        growMode: 'horizontal'
+        inheritViewSizeMode: 'height'
+        view: textField
+      ))
     )
 
-    #textField.sizeToFit(->
-      #headerCell.layout()
-    #)
+    headerCell.addEventOnceListener('layout', ->
+      textField.sizeToFit(->
+        textField.setProperty('text', '')
+        headerCell.layout()
+      )
+    )
   )
 
   headerCell.view
