@@ -4,6 +4,8 @@ TN.UI.TextField = class TextField extends TN.UI.View
   constructor: (options) ->
     super options
 
+    delete @backgroundColor unless options.backgroundColor?
+
     @align = options?.align ? 'left'
     @hint = options?.hint ? ''
     @text = options?.text

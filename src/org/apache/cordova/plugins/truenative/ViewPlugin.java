@@ -26,9 +26,11 @@ public class ViewPlugin extends ComponentPlugin {
       new ViewSubclass.LayoutParams(0, 0, 0, 0);
     ViewSubclass parent;
 
-    int backgroundColor = Util.parseColor("clear");
-    int highlightedBackgroundColor = Util.parseColor("clear");
-    int borderColor = 0;
+    boolean hasBackgroundColor = false;
+    int backgroundColor;
+    int highlightedBackgroundColor = -1;
+    boolean hasBorderColor = false;
+    int borderColor;
     int borderRadius = 0;
     int borderWidth = 0;
   }
@@ -136,14 +138,29 @@ public class ViewPlugin extends ComponentPlugin {
     }
   }
 
-  private void updateBackgroundShape(View view, ViewData data) {
-    float[] radii = new float[8];
-    for (int i = 0; i < 8; ++i) { radii[i] = data.borderRadius; }
-    RoundRectShape roundRect = new RoundRectShape(radii, null, null); 
+  private void updateBackground(View view, ViewData data) {
+    if (data.borderWidth > 0) {
+      assertTrue(
+          "If you specify a borderWidth, you must also specify a borderColor"
+          + " and backgroundColor",
+          !data.hasBackgroundColor || !data.hasBorderColor);
 
-    view.setBackgroundDrawable(
-        new ViewBackground(
-          roundRect, data.backgroundColor, data.borderColor, data.borderWidth));
+      float[] radii = new float[8];
+      for (int i = 0; i < 8; ++i) { radii[i] = data.borderRadius; }
+      RoundRectShape roundRect = new RoundRectShape(radii, null, null); 
+
+      view.setBackgroundDrawable(
+          new ViewBackground(
+            roundRect, data.backgroundColor, 
+            data.borderColor, data.borderWidth));
+    } else {
+      // If we only have a background color but no border, don't use a shape at
+      // all.
+
+      if (data.hasBackgroundColor) {
+        view.setBackgroundColor(data.backgroundColor);
+      }
+    }
   }
 
   // Borrowed from:
@@ -197,19 +214,21 @@ public class ViewPlugin extends ComponentPlugin {
 
     if (key.equals("backgroundColor")) {
       data.backgroundColor = Util.parseColor((String)value);
-      updateBackgroundShape(view, data);
+      data.hasBackgroundColor = true;
+      updateBackground(view, data);
     } else if (key.equals("highlightedBackgroundColor")) {
       data.highlightedBackgroundColor = Util.parseColor((String)value);
-      updateBackgroundShape(view, data);
+      updateBackground(view, data);
     } else if (key.equals("borderColor")) {
       data.borderColor = Util.parseColor((String)value);
-      updateBackgroundShape(view, data);
+      data.hasBorderColor = true;
+      updateBackground(view, data);
     } else if (key.equals("borderRadius")) {
       data.borderRadius = convertToPixels(value);
-      updateBackgroundShape(view, data);
+      updateBackground(view, data);
     } else if (key.equals("borderWidth")) {
       data.borderWidth = convertToPixels(value);
-      updateBackgroundShape(view, data);
+      updateBackground(view, data);
     } else if (key.equals("top")) {
       data.layoutParams.y = convertToPixels(value);
       updateLayoutParams(view, data);

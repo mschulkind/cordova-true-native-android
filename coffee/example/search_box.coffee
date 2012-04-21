@@ -19,10 +19,6 @@ App.createSearchBoxHeaderView = (options) ->
     headerCell.batchUpdates(->
       textField = new TN.UI.TextField(
         hint: hint
-        backgroundColor: 'white'
-        borderColor: 'black'
-        borderWidth: 1
-        text: 'jZ'
       )
 
       textField.addEventListener('change', (e) -> onChange?(e))
@@ -37,7 +33,6 @@ App.createSearchBoxHeaderView = (options) ->
 
     headerCell.addEventOnceListener('layout', ->
       textField.sizeToFit(->
-        textField.setProperty('text', '')
         headerCell.layout()
       )
     )
