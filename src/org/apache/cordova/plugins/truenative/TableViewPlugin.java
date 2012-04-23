@@ -64,6 +64,11 @@ public class TableViewPlugin extends ViewPlugin {
     }
 
     @Override
+    public boolean areAllItemsEnabled() {
+      return false;
+    }
+
+    @Override
     public boolean isEnabled(int position) {
       // All are enabled except the header view.
       return getAdjustedPosition(position) != -1;
