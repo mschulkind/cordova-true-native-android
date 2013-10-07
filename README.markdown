@@ -1,5 +1,5 @@
 # Screenshots
 
-![screenshot](cordova-true-native-android/raw/master/screenshots/screenshot1.png)
-![screenshot](cordova-true-native-android/raw/master/screenshots/screenshot2.png)
-![screenshot](cordova-true-native-android/raw/master/screenshots/screenshot3.png)
+![screenshot](https://raw.github.com/mschulkind/cordova-true-native-android/master/screenshots/screenshot1.png)
+![screenshot](https://raw.github.com/mschulkind/cordova-true-native-android/master/screenshots/screenshot2.png)
+![screenshot](https://raw.github.com/mschulkind/cordova-true-native-android/master/screenshots/screenshot3.png)
